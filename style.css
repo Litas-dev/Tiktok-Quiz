@@ -152,6 +152,22 @@ body.compact .choice{padding:14px 12px; font-size: clamp(16px, 3.2vw, 24px)}
 body.compact .key{min-width:50px; height:40px}
 body.compact .btn{padding:10px 14px}
 
-/* avatars */
-.av{width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid var(--line)}
-.rowL{display:flex; align-items:center; gap:8px}
+/* Solo challenge */
+.soloCard{max-width:860px}
+.avBig{width:48px;height:48px}
+.pName{font-weight:900}
+.pBadge{font-size:12px;color:var(--muted)}
+.soloQ{ text-align:center; font-weight:900; line-height:1.25; font-size: clamp(22px, 4.6vw, 36px); margin:10px 0 }
+.soloAns{ width:100%; max-width:900px; display:grid; gap:12px; grid-template-columns: 1fr }
+@media (min-width:720px){ .soloAns{ grid-template-columns: 1fr 1fr } }
+.soloAns .choice{ cursor:default }
+
+/* Settings polish */
+.card h3{font-weight:900}
+.card label{display:inline-flex; align-items:center; gap:8px; margin:6px 0}
+.addons{display:flex; flex-direction:column; gap:10px}
+.addonItem{display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:#0E162B}
+.addonMeta{display:flex; flex-direction:column}
+.addonName{font-weight:900}
+.addonDesc{color:var(--muted); font-size:14px; margin-top:2px}
+
