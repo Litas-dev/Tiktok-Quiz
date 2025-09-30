@@ -6,7 +6,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 
 const state={
-  settings:{ secsPerQuestion:20, autoNext:false, sounds:{ticking:true, fail:true} },
+  settings:{ secsPerQuestion:20, autoNext:false, sounds:{ticking:true, fail:true}, liveMode:false, chatSafe:120 },
   bank:[],
   players:{},
   session:{
@@ -24,10 +24,15 @@ function restore(){
   const secsEl=document.getElementById('secsPerQ');
   const tickEl=document.getElementById('sndTick');
   const failEl=document.getElementById('sndFail');
+  const liveEl=document.getElementById('liveMode');
+  const chatSafeEl=document.getElementById('chatSafe');
   if(autoNextEl) autoNextEl.checked=!!state.settings.autoNext;
   if(secsEl) secsEl.value=state.settings.secsPerQuestion;
   if(tickEl) tickEl.checked=!!state.settings.sounds.ticking;
   if(failEl) failEl.checked=!!state.settings.sounds.fail;
+  if(liveEl) liveEl.checked=!!state.settings.liveMode;
+  if(chatSafeEl) chatSafeEl.value=state.settings.chatSafe||120;
+  applyLiveSettings();
 }
 document.addEventListener('DOMContentLoaded',()=>{
   restore();
@@ -226,3 +231,19 @@ window.addEventListener('keydown',e=>{
     if(document.getElementById('overlay').style.display==='flex') proceed(); else reveal(false);
   }
 });
+
+// Live mode helpers
+function applyLiveSettings(){
+  const v = Math.max(0, parseInt(state.settings.chatSafe)||0);
+  document.documentElement.style.setProperty('--safe-bottom', v+'px');
+  document.body.classList.toggle('live', !!state.settings.liveMode);
+  const small = window.innerHeight < 740;
+  document.body.classList.toggle('compact', small || !!state.settings.liveMode);
+}
+function toggleLive(on){
+  state.settings.liveMode=!!on; save(); applyLiveSettings();
+}
+function setChatSafe(n){
+  state.settings.chatSafe = clamp(parseInt(n)||0, 0, 400); save(); applyLiveSettings();
+}
+window.addEventListener('resize', applyLiveSettings);
