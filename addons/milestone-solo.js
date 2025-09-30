@@ -1,10 +1,10 @@
-/* KQuiz addon: Milestone Solo Challenge */
+/* KQuiz addon: Milestone Solo Challenge (registering) */
 (function(){
-  function plugin(K){
-    if(!K || !K.on) return;
-
-    // inject minimal CSS
-    const css = `.kq-solo-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:99;padding:16px;background:rgba(3,8,18,.65);backdrop-filter:blur(3px)}
+  function factory(){
+    let queue=[], running=false, t=null, left=0, total=0, targetId=null, overlay=null, mounted=false, guardSet=false;
+    function mountUI(){
+      if(mounted) return;
+      const css = `.kq-solo-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:99;padding:16px;background:rgba(3,8,18,.65);backdrop-filter:blur(3px)}
 .kq-solo-card{width:min(900px,96vw);background:rgba(16,24,40,.55);border:1px solid #1E2A3F;border-radius:20px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .kq-row{display:flex;align-items:center;gap:8px}
 .kq-av{width:48px;height:48px;border-radius:50%;object-fit:cover;border:1px solid #1E2A3F}
@@ -18,90 +18,109 @@
 .kq-bar{height:14px;border-radius:999px;background:#11213A;border:1px solid #1E2A3F;overflow:hidden;margin-top:6px}
 .kq-fill{height:100%;width:0%}
 .kq-ctrls{display:flex;gap:10px;justify-content:center;margin-top:10px}
-.kq-btn{padding:10px 14px;border-radius:14px;border:1px solid #1E2A3F;background:#0E162B;color:#F3F6FC;font-weight:900;cursor:pointer}
-`;
-    const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
-
-    // overlay DOM
-    const overlay = document.createElement('div'); overlay.className='kq-solo-overlay'; overlay.innerHTML = `
-      <div class="kq-solo-card">
-        <div class="kq-row"><img class="kq-av" id="kqSoloAva"/><div><div class="kq-name" id="kqSoloName">Žaidėjas</div><div class="kq-badge">Asmeninis iššūkis</div></div></div>
-        <div class="kq-q" id="kqSoloQ">Klausimas...</div>
-        <div class="kq-bar"><div class="kq-fill" id="kqSoloFill"></div></div>
-        <div class="kq-row" style="justify-content:space-between;color:#9FB0C6;font-weight:700;margin:4px 2px">
-          <div>Laikas: <span id="kqSoloLeft">0</span>s</div>
-          <div>Riba: +10 / -50%</div>
-        </div>
-        <div class="kq-ans" id="kqSoloAns"></div>
-        <div class="kq-ctrls"><button class="kq-btn" id="kqSoloCancel">Atšaukti</button></div>
-      </div>`;
-    document.body.appendChild(overlay);
-
-    let queue=[], running=false, t=null, left=0, total=0, targetId=null;
-    function kick(){ if(running || queue.length===0) return; run(queue.shift()); }
-
-    function run(id){
+.kq-btn{padding:10px 14px;border-radius:14px;border:1px solid #1E2A3F;background:#0E162B;color:#F3F6FC;font-weight:900;cursor:pointer}`;
+      const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
+      overlay = document.createElement('div'); overlay.className='kq-solo-overlay'; overlay.innerHTML = `
+        <div class="kq-solo-card">
+          <div class="kq-row"><img class="kq-av" id="kqSoloAva"/><div><div class="kq-name" id="kqSoloName">Žaidėjas</div><div class="kq-badge">Asmeninis iššūkis</div></div></div>
+          <div class="kq-q" id="kqSoloQ">Klausimas...</div>
+          <div class="kq-bar"><div class="kq-fill" id="kqSoloFill"></div></div>
+          <div class="kq-row" style="justify-content:space-between;color:#9FB0C6;font-weight:700;margin:4px 2px">
+            <div>Laikas: <span id="kqSoloLeft">0</span>s</div>
+            <div>Riba: +10 / -50%</div>
+          </div>
+          <div class="kq-ans" id="kqSoloAns"></div>
+          <div class="kq-ctrls"><button class="kq-btn" id="kqSoloCancel">Atšaukti</button></div>
+        </div>`;
+      document.body.appendChild(overlay);
+      mounted=true;
+    }
+    function unmountUI(){
+      if(overlay && overlay.parentNode){ overlay.parentNode.removeChild(overlay); }
+      overlay=null; mounted=false;
+    }
+    function kick(K){ if(running || queue.length===0) return; run(K, queue.shift()); }
+    function run(K,id){
       running=true; targetId=id; K.control.pauseMain();
-      const p = K.state.players[id]; if(!p){ finish(); return; }
-      // question
+      const p = K.state.players[id]; if(!p){ finish(K); return; }
       const q = K.control.getRandomQuestion() || {q:'Klausimas', options:['A','B','C','D'], keys:['A','B','C','D'], correctKey:'A', correctText:'A'};
-      // render
-      $('#kqSoloName').textContent = p.name || id;
-      $('#kqSoloAva').src = p.avatar || '';
-      $('#kqSoloQ').textContent = q.q;
-      const box = $('#kqSoloAns'); box.innerHTML='';
+      overlay.style.display='flex';
+      document.getElementById('kqSoloName').textContent = p.name || id;
+      document.getElementById('kqSoloAva').src = p.avatar || '';
+      document.getElementById('kqSoloQ').textContent = q.q;
+      const box = document.getElementById('kqSoloAns'); box.innerHTML='';
       q.options.forEach((opt,i)=>{
         const key=q.keys[i];
         box.appendChild(K.util.el('div',{class:'kq-choice'}, K.util.el('div',{class:'kq-key'}, key), opt));
       });
-      // guard only this user
-      K.control.setChatGuard((msg,{parseAnswer,ensurePlayer})=>{
-        const {id:uid}=ensurePlayer(msg);
-        if(uid!==targetId) return true; // consume others
-        const key=parseAnswer(String(msg.text||''));
-        if(!key) return true;
-        resolve(key===q.correctKey);
-        return true;
-      });
-      // timer
-      left=12; total=left; $('#kqSoloLeft').textContent=String(left); $('#kqSoloFill').style.width='0%';
+
+      if(!guardSet){
+        K.control.setChatGuard((msg,{parseAnswer,ensurePlayer})=>{
+          const {id:uid}=ensurePlayer(msg);
+          if(uid!==targetId) return true;
+          const key=parseAnswer(String(msg.text||''));
+          if(!key) return true;
+          resolve(K, key===q.correctKey);
+          return true;
+        });
+        guardSet=true;
+      }
+
+      left=12; total=left; document.getElementById('kqSoloLeft').textContent=String(left); document.getElementById('kqSoloFill').style.width='0%';
       if(t) clearInterval(t);
       t=setInterval(()=>{
-        left--; $('#kqSoloLeft').textContent=String(Math.max(0,left));
-        const pct = total?100*(total-left)/total:0; $('#kqSoloFill').style.width=pct+'%';
-        if(left<=0){ clearInterval(t); t=null; resolve(false); }
+        left--; document.getElementById('kqSoloLeft').textContent=String(Math.max(0,left));
+        const pct = total?100*(total-left)/total:0; document.getElementById('kqSoloFill').style.width=pct+'%';
+        if(left<=0){ clearInterval(t); t=null; resolve(K, false); }
       },1000);
-      overlay.style.display='flex';
-      $('#kqSoloCancel').onclick=()=>resolve(false);
-      function resolve(ok){
+      document.getElementById('kqSoloCancel').onclick=()=>resolve(K,false);
+      function resolve(K,ok){
         if(t){ clearInterval(t); t=null; }
         const p = K.state.players[id]; if(p){
-          if(ok) p.score = (p.score||0)+10;
-          else p.score = Math.floor((p.score||0)*0.5);
+          if(ok) p.score = (p.score||0)+10; else p.score = Math.floor((p.score||0)*0.5);
         }
         overlay.style.display='none';
-        K.control.clearChatGuard();
-        finish();
+        K.control.clearChatGuard(); guardSet=false;
+        finish(K);
       }
     }
-
-    function finish(){
+    function finish(K){
       running=false; targetId=null;
-      if(queue.length>0){ run(queue.shift()); } else { K.control.resumeFlow(); }
+      if(queue.length>0){ run(K, queue.shift()); } else { K.control.resumeFlow(); }
     }
 
-    // Listen for score changes and enqueue on 100s boundaries
-    K.on('scoresChanged', ({id, before, after})=>{
-      if(Math.floor(after/100) > Math.floor(before/100)){
-        if(!queue.includes(id)) queue.push(id);
-        kick();
+    let scoresHandler = null;
+    return {
+      id: 'milestoneSolo',
+      name: 'Milestone Solo Challenge',
+      description: 'Asmeninis iššūkis kas 100/200/300… taškų (+10 arba −50% taškų).',
+      defaultEnabled: true,
+      enable(K){
+        mountUI();
+        scoresHandler = ({id, before, after})=>{
+          if(Math.floor(after/100) > Math.floor(before/100)){
+            if(!queue.includes(id)) queue.push(id);
+            kick(K);
+          }
+        };
+        K.on('scoresChanged', scoresHandler);
+      },
+      disable(){
+        try{ if(scoresHandler && window.KQuiz) window.KQuiz.off('scoresChanged', scoresHandler); }catch{} scoresHandler=null;
+        queue.length=0;
+        if(t){ clearInterval(t); t=null; }
+        if(overlay){ overlay.style.display='none'; }
+        if(window.KQuiz) window.KQuiz.control.clearChatGuard();
+        running=false; targetId=null;
+        unmountUI();
       }
-    });
+    };
   }
 
-  if(window.KQuiz){ window.KQuiz.use(plugin); }
-  else{
-    // fallback if core loads later
-    window.addEventListener('DOMContentLoaded', ()=>{ if(window.KQuiz) window.KQuiz.use(plugin); });
+  function register(){
+    if(!window.KQuiz || !window.KQuiz.registerAddon){ return setTimeout(register, 100); }
+    const addon = factory();
+    window.KQuiz.registerAddon(addon);
   }
+  register();
 })();
