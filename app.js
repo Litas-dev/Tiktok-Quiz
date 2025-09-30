@@ -12,7 +12,7 @@ const state={
   session:{
     deck:[], i:0, open:false, timerRunning:false,
     correctKey:'A', answers:{}, counts:{A:0,B:0,C:0,D:0},
-    done:0, shownTop:{}, pendingChallenges:[], used:{}, special:null,
+    done:0, shownTop:{}, used:{},
     curr:null
   },
   ws:null, wsOk:false
@@ -31,7 +31,6 @@ function restore(){
 }
 document.addEventListener('DOMContentLoaded',()=>{
   restore();
-  const sidebar=document.getElementById('sidebar');
   const hamburger=document.getElementById('hamburger');
   if(hamburger){ hamburger.addEventListener('click',()=>toggleMenu()); }
 });
@@ -106,7 +105,7 @@ function nextQ(){
   document.getElementById('lockBtn').classList.remove('hidden');
   document.getElementById('revealBtn').classList.remove('hidden');
   document.getElementById('nextBtn').classList.add('hidden');
-  document.getElementById('roundNum').textContent=String(state.session.done);
+  document.getElementById('roundNum').textContent=String(state.session.done+1);
   save();
   bootTimer();
 }
@@ -181,11 +180,17 @@ function closeLeaderboard(){ document.getElementById('lbModal').style.display='n
 
 function connectWS(){
   const url=(document.getElementById('wsUrl').value||'').trim()||'ws://localhost:8081';
-  try{ if(state.ws) state.ws.close(); }catch{}
-  const ws=new WebSocket(url); state.ws=ws; document.getElementById('wsState').textContent='jungiamasi...';
-  ws.onopen=()=>{ state.wsOk=true; document.getElementById('wsState').textContent='prijungta'; };
-  ws.onclose=ws.onerror=()=>{ state.wsOk=false; document.getElementById('wsState').textContent='neprijungta'; };
-  ws.onmessage=ev=>{ try{ const m=JSON.parse(ev.data); if(m.type==='chat') handleChat(m); }catch{} };
+  let attempts=0;
+  function dial(){
+    try{ if(state.ws) state.ws.close(); }catch{}
+    const ws=new WebSocket(url); state.ws=ws; document.getElementById('wsState').textContent='jungiamasi...';
+    ws.onopen=()=>{ attempts=0; state.wsOk=true; document.getElementById('wsState').textContent='prijungta'; };
+    ws.onclose=ws.onerror=()=>{ state.wsOk=false; document.getElementById('wsState').textContent='neprijungta';
+      setTimeout(dial, Math.min(10000, 1000*(2**(attempts++))));
+    };
+    ws.onmessage=ev=>{ try{ const m=JSON.parse(ev.data); if(m.type==='chat') handleChat(m); }catch{} };
+  }
+  dial();
 }
 
 function ensurePlayer(msg){
@@ -204,19 +209,20 @@ function ensurePlayer(msg){
 function handleChat(msg){
   if(!state.session.timerRunning || !state.session.open) return;
   const key=parseAnswer(String(msg.text||'')); if(!key) return;
-  const {id, p} = ensurePlayer(msg);
+  const {id} = ensurePlayer(msg);
   if(state.session.answers[id]) return;
   state.session.answers[id]=key; state.session.counts[key]=(state.session.counts[key]||0)+1;
 }
 function parseAnswer(t){
   t=t.trim().toUpperCase();
-  const m=t.match(/\b([ABCD])\b/); if(m) return m[1];
-  const d=t.match(/\b([1-4])\b/); if(d) return ['A','B','C','D'][parseInt(d[1],10)-1];
+  const m=t.match(/\b([ABCD])\b|(^|[^0-9])([1-4])($|[^0-9])/);
+  if(m) return m[1] || ['A','B','C','D'][parseInt(m[3],10)-1];
   return null;
 }
 
 window.addEventListener('keydown',e=>{
   if(e.key===' '){
+    e.preventDefault();
     if(document.getElementById('overlay').style.display==='flex') proceed(); else reveal(false);
   }
 });
