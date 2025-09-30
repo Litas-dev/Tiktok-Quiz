@@ -1,156 +1,11 @@
 <!DOCTYPE html>
 <html lang="lt">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<meta name="theme-color" content="#0A0F1F"/>
-<title>Kostelio klausimynas — v3</title>
-<style>
-  :root{
-    --bg:#0A0F1F; --ink:#F3F6FC; --muted:#9FB0C6;
-    --panel:rgba(16,24,40,.55); --line:#1E2A3F;
-    --accent:#7C5CFF; --accent2:#2EE5A9; --danger:#FF5A6E; --ok:#2EE5A9; --warn:#F6C443;
-    --safe-top:64px;
-    --safe-bottom:70px;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; color:var(--ink); background:
-      radial-gradient(1200px 800px at 80% -10%, #0D1530 20%, transparent 60%),
-      radial-gradient(900px 700px at -10% 110%, #061327 10%, transparent 60%),
-      linear-gradient(180deg, #0B1226 0%, #0A0F1F 100%);
-    font:500 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
-    overscroll-behavior: none;
-  }
-  a{color:#9cc2ff;text-decoration:none} a:hover{text-decoration:underline}
-
-  .topbar{
-    position:sticky; top:0; z-index:50;
-    display:flex; align-items:center; gap:12px; padding:10px 14px;
-    background:linear-gradient(180deg, rgba(10,15,31,.95), rgba(10,15,31,.6) 70%, transparent);
-    backdrop-filter: blur(6px);
-    border-bottom:1px solid var(--line);
-  }
-  .brand{font-weight:800; letter-spacing:.2px}
-  .ver{color:var(--muted); font-weight:600}
-  .spacer{flex:1}
-  .hamburger{
-    display:none; width:44px; height:44px; border-radius:12px;
-    border:1px solid var(--line); background:#0E162B; color:var(--ink);
-    align-items:center; justify-content:center; cursor:pointer;
-  }
-  .hamburger:active{transform:scale(.98)}
-  .hamburger svg{width:22px;height:22px}
-  .topnav{display:flex; gap:8px}
-  .navbtn{padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:#0E162B; color:var(--ink); font-weight:700; cursor:pointer}
-  .navbtn:hover{border-color:#2a3a58}
-
-  .sidebar{
-    position:fixed; inset:0 auto 0 0; width:280px; max-width:82%;
-    background:#0B1224; border-right:1px solid var(--line);
-    transform:translateX(-100%); transition:transform .22s ease; z-index:60; padding:14px;
-  }
-  .sidebar.open{transform:none}
-  .sbtn{width:100%; text-align:left; padding:12px 14px; margin:8px 0; border-radius:14px; border:1px solid var(--line); background:#0E162B; color:var(--ink); font-weight:800; cursor:pointer}
-
-  .section{display:none; padding:12px}
-  .section.active{display:block}
-
-  .board{
-    min-height: calc(100svh - var(--safe-top) - var(--safe-bottom) - 56px);
-    padding: min(3.5vh,24px) 12px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:14px; max-width:980px; margin:0 auto;
-  }
-
-  .card{
-    width:min(960px,96vw); background:var(--panel);
-    border:1px solid var(--line); border-radius:20px; padding:16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    backdrop-filter: blur(8px);
-  }
-
-  .title{
-    font-weight:900; letter-spacing:.3px; text-align:center;
-    font-size: clamp(28px, 6.2vw, 56px);
-    background: linear-gradient(90deg, #B0C6FF 0%, #CFFAEA 50%, #B7A5FF 100%);
-    -webkit-background-clip: text; background-clip:text; color:transparent;
-    margin:0 0 6px;
-  }
-  #q{
-    text-align:center; font-weight:800; line-height:1.25;
-    font-size: clamp(22px, 4.8vw, 40px);
-    margin: 6px 0 2px;
-  }
-  .timerWrap{width:100%; max-width:900px}
-  .trow{display:flex; justify-content:space-between; color:var(--muted); font-weight:700; margin:6px 2px}
-  .bar{height:14px; border-radius:999px; background:#11213A; border:1px solid var(--line); overflow:hidden}
-  .fill{height:100%; width:0%; background:
-    linear-gradient(90deg, var(--accent), var(--accent2));
-    transition:width .25s linear}
-
-  #ans{
-    width:100%; max-width:900px;
-    display:grid; gap:12px; grid-template-columns: 1fr;
-  }
-  @media (min-width:720px){ #ans{grid-template-columns: 1fr 1fr} }
-
-  .choice{
-    display:flex; align-items:center; gap:12px; padding:16px 14px;
-    border-radius:18px; border:1px solid var(--line); background:rgba(17,27,47,.75);
-    font-weight:800; font-size: clamp(18px, 3.6vw, 28px);
-    box-shadow: inset 0 0 0 1px rgba(124,92,255,.08);
-  }
-  .key{
-    min-width:56px; height:44px; display:inline-flex; align-items:center; justify-content:center;
-    border-radius:14px; background:#0E1730; border:1px solid #26365A;
-    color:#BBD7FF; font-weight:900;
-  }
-
-  .controls{display:flex; flex-wrap:wrap; gap:10px; justify-content:center}
-  .btn{
-    padding:12px 16px; border-radius:14px; border:1px solid var(--line);
-    background:#0E162B; color:var(--ink); font-weight:900; cursor:pointer;
-  }
-  .btn.ok{background:linear-gradient(180deg,#133B30,#0E162B); border-color:#17493b}
-  .btn.warn{background:linear-gradient(180deg,#392E10,#0E162B); border-color:#4b3c12}
-  .btn.alt{background:#101a34}
-  .btn:active{transform:scale(.98)}
-
-  .micro{display:flex; align-items:center; gap:12px; justify-content:center; color:var(--muted); font-weight:700}
-  .input, select{
-    padding:10px 12px; border-radius:12px; background:#0E162B; border:1px solid var(--line); color:var(--ink)
-  }
-
-  .overlay{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:80; padding:16px; background:rgba(3,8,18,.65); backdrop-filter: blur(3px)}
-  .answerBig{font-size:clamp(28px, 6vw, 48px); font-weight:1000; color:var(--ok); text-align:center}
-  .note{color:var(--muted); font-size:clamp(14px, 3vw, 18px); text-align:center}
-  .winners{margin-top:12px}
-  .row{display:flex; justify-content:space-between; padding:8px 10px; border-bottom:1px solid var(--line)}
-  .row:last-child{border-bottom:none}
-
-  .float-lb{
-    position:fixed; left:50%; transform:translateX(-50%);
-    bottom:10px; z-index:70;
-    background:#0E162B; border:1px solid var(--line); border-radius:16px; padding:10px 16px; font-weight:900; cursor:pointer;
-  }
-  .lbList{ max-height:60vh; overflow:auto; border:1px solid var(--line); border-radius:12px }
-
-  .rules{max-width:780px; margin:0 auto}
-  .rules ul{margin:10px 0 0 20px}
-  .grid2{display:grid; grid-template-columns:1fr; gap:12px}
-  @media (min-width:880px){ .grid2{grid-template-columns:1fr 1fr} }
-
-  @media (max-width:880px){
-    .hamburger{display:flex}
-    .topnav{display:none}
-  }
-
-  /* avatars */
-  .av{width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid var(--line)}
-  .rowL{display:flex; align-items:center; gap:8px}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0A0F1F"/>
+  <title>Kostelio klausimynas — v3.0</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
@@ -178,7 +33,7 @@
   </aside>
 
   <main>
-    
+    <!-- Home: player-facing info -->
     <section id="home" class="section active">
       <div class="board">
         <h1 class="title">Kostelio klausimynas</h1>
@@ -211,7 +66,7 @@
       </div>
     </section>
 
-
+    <!-- Game -->
     <section id="game" class="section">
       <div class="board">
         <div class="timerWrap">
@@ -242,6 +97,7 @@
       </div>
     </section>
 
+    <!-- Settings -->
     <section id="settings" class="section">
       <div class="board">
         <div class="grid2">
@@ -250,11 +106,13 @@
             <input id="jsonFile" class="input" type="file" accept=".json" onchange="loadJSON(this.files[0])"/>
             <div id="bankStat" class="muted" style="margin-top:8px">Neužkrauta</div>
           </div>
+
           <div class="card">
             <h3 style="margin:0 0 8px">Garsai</h3>
             <label><input type="checkbox" id="sndTick" checked onchange="state.settings.sounds.ticking=this.checked; save()"> Tiksėjimas</label><br/>
             <label><input type="checkbox" id="sndFail" checked onchange="state.settings.sounds.fail=this.checked; save()"> Nesėkmės garsas</label>
           </div>
+
           <div class="card">
             <h3 style="margin:0 0 8px">Chat tiltas</h3>
             <label>WebSocket URL
@@ -264,19 +122,32 @@
               <button class="btn" onclick="connectWS()">Prisijungti</button>
               <span id="wsState" class="muted">neprijungta</span>
             </div>
-            <div class="muted" style="margin-top:8px">Laukiamas formatas: <code>{type:'chat', userId:'...', displayName:'...', avatar:'...', text:'...'}</code></div>
+            <div class="muted" style="margin-top:8px">
+              Laukiamas formatas: <code>{type:'chat', userId:'...', displayName:'...', avatar:'...', text:'...'}</code>
+            </div>
           </div>
-          
+
           <div class="card">
-            <h3 style="margin:0 0 8px">Papildiniai (Add‑ons)</h3>
+            <h3 style="margin:0 0 8px">Live režimas</h3>
+            <label><input type="checkbox" id="liveMode" onchange="toggleLive(this.checked)"> Įjungti „TikTok Live“ režimą</label>
+            <div style="margin-top:8px">
+              <label>Apatinis chat aukštis
+                <input id="chatSafe" class="input" type="number" min="0" max="400" value="120" onchange="setChatSafe(this.value)"> px
+              </label>
+            </div>
+            <div class="muted" style="margin-top:8px">Nustato saugią zoną, kad apačia nesidengtų su TikTok chatu.</div>
+          </div>
+
+          <div class="card">
+            <h3 style="margin:0 0 8px">Papildiniai (Add-ons)</h3>
             <div class="muted" style="margin:0 0 8px">Įjunk / išjunk funkcijas be perkrovimo.</div>
             <div id="addonsList" class="addons"></div>
           </div>
 
           <div class="card">
             <h3 style="margin:0 0 8px">Versija</h3>
-            <div>vv3.0 mobile-first</div>
-            <div class="muted">Avatarai ir slapyvardžiai iš WS. „curr“ lock. Tik kai bėga laikas.</div>
+            <div>v3.0</div>
+            <div class="muted">Live-safe UI. Papildinių sistema. Avatarai ir slapyvardžiai iš WS.</div>
           </div>
         </div>
       </div>
@@ -285,6 +156,7 @@
 
   <button class="float-lb" onclick="openLeaderboard()">Lyderių lentelė</button>
 
+  <!-- Reveal overlay -->
   <div id="overlay" class="overlay">
     <div class="card">
       <div class="answerBig" id="ovAnswer"></div>
@@ -299,34 +171,7 @@
     </div>
   </div>
 
-
-  <div id="soloModal" class="overlay">
-    <div class="card soloCard">
-      <div class="pTop rowL">
-        <img id="soloAva" class="av avBig" src="" alt="">
-        <div>
-          <div class="pName" id="soloName">Žaidėjas</div>
-          <div class="pBadge">Asmeninis iššūkis</div>
-        </div>
-      </div>
-
-      <div class="timerWrap small">
-        <div class="bar"><div id="soloTimerFill" class="fill"></div></div>
-        <div class="trow">
-          <div>Laikas: <span id="soloTLeft">0</span>s</div>
-          <div>Riba: <span id="soloTarget">+10 / -50%</span></div>
-        </div>
-      </div>
-
-      <div id="soloQ" class="soloQ">Klausimas...</div>
-      <div id="soloAns" class="soloAns"></div>
-
-      <div class="controls">
-        <button class="btn alt" onclick="cancelSolo()">Atšaukti</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- Leaderboard modal -->
   <div id="lbModal" class="overlay">
     <div class="card">
       <div style="text-align:center; font-weight:1000; font-size:22px; margin-bottom:6px">Lyderių lentelė</div>
@@ -340,221 +185,8 @@
   <audio id="tickAudio" src="clock-67787.mp3" preload="auto" loop></audio>
   <audio id="failAudio" src="no-luck-too-bad-disappointing-sound-effect-112943.mp3" preload="auto"></audio>
 
-<script>
-"use strict";
-const $=(q,r=document)=>r.querySelector(q);
-const $$=(q,r=document)=>Array.from(r.querySelectorAll(q));
-const el=(t,a={},...cs)=>{const n=document.createElement(t);Object.entries(a).forEach(([k,v])=>k==='class'?n.className=v:n.setAttribute(k,v));cs.forEach(c=>n.appendChild(typeof c==='string'?document.createTextNode(c):c));return n;}
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-
-const state={
-  settings:{ secsPerQuestion:20, autoNext:false, sounds:{ticking:true, fail:true} },
-  bank:[],
-  players:{},
-  session:{
-    deck:[], i:0, open:false, timerRunning:false,
-    correctKey:'A', answers:{}, counts:{A:0,B:0,C:0,D:0},
-    done:0, shownTop:{}, pendingChallenges:[], used:{}, special:null,
-    curr:null
-  },
-  ws:null, wsOk:false
-};
-function save(){ try{localStorage.setItem('kquiz', JSON.stringify({settings:state.settings}))}catch{} }
-function restore(){
-  try{const s=JSON.parse(localStorage.getItem('kquiz')||'{}'); if(s.settings) Object.assign(state.settings,s.settings);}catch{}
-  $('#autoNext').checked=!!state.settings.autoNext;
-  $('#secsPerQ').value=state.settings.secsPerQuestion;
-  $('#sndTick').checked=!!state.settings.sounds.ticking;
-  $('#sndFail').checked=!!state.settings.sounds.fail;
-}
-restore();
-
-function nav(id){ $$('.section').forEach(s=>s.classList.remove('active')); $('#'+id).classList.add('active'); }
-const sidebar=$('#sidebar');
-$('#hamburger').addEventListener('click',()=>toggleMenu());
-function toggleMenu(force){ const open=(typeof force==='boolean')?force:!sidebar.classList.contains('open'); sidebar.classList.toggle('open',open); }
-
-async function loadJSON(file){
-  if(!file) return;
-  const text=await file.text();
-  let data=[]; try{ data=JSON.parse(text); if(!Array.isArray(data)) throw 0; }catch{ alert('Blogas JSON.'); return; }
-  const out=[]; const seen=new Set();
-  for(const o of data){
-    if(!o||!o.q||seen.has(o.q)) continue;
-    seen.add(o.q);
-    const wrong=Array.isArray(o.wrong)?o.wrong.slice(0,3):[];
-    while(wrong.length<3) wrong.push('');
-    out.push({q:String(o.q), correct:String(o.correct||''), wrong, note:String(o.note||''), cat:String(o.cat||'')});
-  }
-  if(!out.length){ alert('Klausimų nerasta.'); return; }
-  state.bank=out;
-  state.session.deck=shuffle([...Array(out.length).keys()]);
-  state.session.i=0; state.session.used={}; state.session.done=0; state.session.curr=null;
-  $('#bankStat').textContent=`Įkelta ${out.length} klausimų.`;
-  $('#roundNum').textContent='0';
-}
-
-let timer=null, timeLeft=0, totalTime=0;
-function startGame(){
-  if(!state.bank.length){ alert('Įkelkite JSON banką Nustatymuose.'); return; }
-  if(state.session.i>=state.session.deck.length){ state.session.deck=shuffle([...Array(state.bank.length).keys()]); state.session.i=0; state.session.used={}; state.session.done=0; }
-  nav('game'); nextQ();
-}
-function cancelAuto(){ if(window.autoNextTimer){ clearTimeout(window.autoNextTimer); window.autoNextTimer=null; } }
-function bootTimer(){
-  timeLeft=parseInt(state.settings.secsPerQuestion)||20; totalTime=timeLeft;
-  state.session.timerRunning=true; updateTimerUI(); tickStart();
-  if(timer) clearInterval(timer);
-  timer=setInterval(()=>{
-    timeLeft--; updateTimerUI();
-    if(timeLeft<=0){ clearInterval(timer); timer=null; state.session.timerRunning=false; tickStop(); reveal(true); }
-  },1000);
-}
-function updateTimerUI(){
-  $('#tLeft').textContent=String(Math.max(0,timeLeft));
-  const pct=totalTime?100*(totalTime-timeLeft)/totalTime:0;
-  $('#timerFill').style.width=`${pct}%`;
-}
-function nextQ(){
-  cancelAuto();
-  state.session.open=true;
-  while(state.session.i<state.session.deck.length && state.session.used[state.session.deck[state.session.i]]) state.session.i++;
-  if(state.session.i>=state.session.deck.length){ finish(); return; }
-
-  const qid=state.session.deck[state.session.i];
-  const q=state.bank[qid];
-  const opts=[q.correct, ...(q.wrong||[])].slice(0,4); while(opts.length<4) opts.push('');
-  const ord=[0,1,2,3]; shuffle(ord); const keys=['A','B','C','D'];
-
-  $('#q').textContent=q.q;
-  const box=$('#ans'); box.innerHTML='';
-  ord.forEach((oi,i)=> box.appendChild(el('div',{class:'choice'}, el('div',{class:'key'}, keys[i]), opts[oi])));
-
-  const cKey=keys[ord.indexOf(0)]||'A';
-  state.session.correctKey=cKey;
-  state.session.answers={}; state.session.counts={A:0,B:0,C:0,D:0};
-  state.session.curr={qid, correctKey:cKey, correctText:q.correct||'', note:q.note||''};
-  $('#lockBtn').classList.remove('hidden');
-  $('#revealBtn').classList.remove('hidden');
-  $('#nextBtn').classList.add('hidden');
-  $('#roundNum').textContent=String(state.session.done);
-  save();
-  bootTimer();
-}
-function lockNow(){
-  state.session.open=false; state.session.timerRunning=false;
-  if(timer){ clearInterval(timer); timer=null; } tickStop();
-  $('#lockBtn').classList.add('hidden');
-}
-function reveal(auto){
-  if(timer){ clearInterval(timer); timer=null; }
-  state.session.timerRunning=false; tickStop(); lockNow();
-
-  const curr=state.session.curr, correct=curr?curr.correctKey:state.session.correctKey;
-  const winners=[];
-  for(const [id,k] of Object.entries(state.session.answers||{})){
-    if(k===correct){
-      const p=state.players[id]||(state.players[id]={name:id,score:0,nextMilestone:100,avatar:''});
-      p.score=(p.score||0)+10; winners.push({id,name:p.name||id, score:p.score, avatar:p.avatar||''});
-      if(p.score>=(p.nextMilestone||100)){ p.nextMilestone=(p.nextMilestone||100)+100; }
-    }
-  }
-  if(!winners.length && state.settings.sounds.fail){ try{ const f=$('#failAudio'); f.currentTime=0; f.play(); }catch{} }
-
-  try{ if(curr) state.session.used[curr.qid]=true; }catch{}
-  $('#ovAnswer').textContent=curr?curr.correctText:'';
-  $('#ovNote').textContent=curr?curr.note:'';
-  const box=$('#ovWinners'); box.innerHTML='';
-  if(winners.length){
-    winners.sort((a,b)=>b.score-a.score);
-    winners.forEach(w=>{
-      const left=el('div',{class:'rowL'}, w.avatar?el('img',{class:'av',src:w.avatar,alt:''}):el('span',{},''), el('div',{}, w.name));
-      box.appendChild(el('div',{class:'row'}, left, el('div',{}, String(w.score))));
-    });
-  }else{
-    box.appendChild(el('div',{class:'row'}, el('div',{}, 'Niekas neatsakė teisingai'), el('div',{}, '0')));
-  }
-  $('#overlay').style.display='flex';
-  $('#nextBtn').classList.remove('hidden'); save();
-
-  if(state.settings.autoNext && auto){
-    window.autoNextTimer=setTimeout(()=>{ if($('#overlay').style.display!=='none'){ $('#overlay').style.display='none'; proceed(); } }, 3000);
-  }
-}
-function proceed(){
-  $('#overlay').style.display='none';
-  state.session.i++; state.session.done++; state.session.curr=null;
-  $('#roundNum').textContent=String(state.session.done); save(); nextQ();
-}
-function finish(){
-  $('#q').textContent='Klausimai baigėsi.';
-  $('#ans').innerHTML=''; $('#lockBtn').classList.add('hidden'); $('#revealBtn').classList.add('hidden'); $('#nextBtn').classList.add('hidden');
-}
-
-function tickStart(){ if(!state.settings.sounds.ticking) return; try{ const a=$('#tickAudio'); a.currentTime=0; a.play(); }catch{} }
-function tickStop(){ try{ $('#tickAudio').pause(); }catch{} }
-
-function openLeaderboard(){
-  const box=$('#lbList'); box.innerHTML='';
-  const arr=Object.entries(state.players).map(([id,p])=>({id,name:p.name||id,score:p.score||0,avatar:p.avatar||''}));
-  arr.sort((a,b)=> b.score-a.score || a.name.localeCompare(b.name));
-  if(!arr.length){
-    box.appendChild(el('div',{class:'row'}, el('div',{}, 'Nėra žaidėjų'), el('div',{}, '0')));
-  }else{
-    arr.forEach((p,i)=>{
-      const left=el('div',{class:'rowL'}, p.avatar?el('img',{class:'av',src:p.avatar,alt:''}):el('span',{},''), el('div',{}, (i+1)+'. '+p.name));
-      box.appendChild(el('div',{class:'row'}, left, el('div',{}, String(p.score))));
-    });
-  }
-  $('#lbModal').style.display='flex';
-}
-function closeLeaderboard(){ $('#lbModal').style.display='none'; }
-
-function connectWS(){
-  const url=$('#wsUrl').value.trim()||'ws://localhost:8081';
-  try{ if(state.ws) state.ws.close(); }catch{}
-  const ws=new WebSocket(url); state.ws=ws; $('#wsState').textContent='jungiamasi...';
-  ws.onopen=()=>{ state.wsOk=true; $('#wsState').textContent='prijungta'; };
-  ws.onclose=ws.onerror=()=>{ state.wsOk=false; $('#wsState').textContent='neprijungta'; };
-  ws.onmessage=ev=>{ try{ const m=JSON.parse(ev.data); if(m.type==='chat') handleChat(m); }catch{} };
-}
-
-function ensurePlayer(msg){
-  const id  = String(msg.userId || msg.uniqueId || msg.displayName || msg.nickname || 'user');
-  const name= String(msg.displayName || msg.nickname || msg.uniqueId || msg.userId || 'Žaidėjas');
-  const ava = String(msg.avatar || msg.profilePictureUrl || msg.userProfilePictureUrl || '');
-  let p = state.players[id];
-  if(!p){ p = state.players[id] = { name, score:0, nextMilestone:100, avatar: ava }; }
-  else{
-    if(name && p.name!==name) p.name = name;
-    if(ava && p.avatar!==ava) p.avatar = ava;
-  }
-  return {id, p};
-}
-
-function handleChat(msg){
-  if(!state.session.timerRunning || !state.session.open) return;
-  const key=parseAnswer(String(msg.text||'')); if(!key) return;
-  const {id, p} = ensurePlayer(msg);
-  if(state.session.answers[id]) return;
-  state.session.answers[id]=key; state.session.counts[key]=(state.session.counts[key]||0)+1;
-}
-function parseAnswer(t){
-  t=t.trim().toUpperCase();
-  const m=t.match(/\b([ABCD])\b/); if(m) return m[1];
-  const d=t.match(/\b([1-4])\b/); if(d) return ['A','B','C','D'][parseInt(d[1],10)-1];
-  return null;
-}
-
-window.addEventListener('keydown',e=>{
-  if(e.key===' '){
-    if($('#overlay').style.display==='flex') proceed(); else reveal(false);
-  }
-});
-</script>
-<script src="app.js?v=3.0"></script>
-<script src="addons/milestone-solo.js?v=1" defer></script>
-
+  <!-- Core then add-ons -->
+  <script src="app.js?v=3.0"></script>
+  <script src="addons/milestone-solo.js?v=1" defer></script>
 </body>
 </html>
