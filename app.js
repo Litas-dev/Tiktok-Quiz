@@ -294,8 +294,52 @@ function getRandomQuestion(){
 }
 
 // expose API
+
+// --- Addon registry ---
+const addons = {};
+function registerAddon(manifest){
+  if(!manifest || !manifest.id) return;
+  const id = manifest.id;
+  addons[id] = manifest;
+  state.settings.addons = state.settings.addons || {};
+  const enabled = (id in state.settings.addons) ? !!state.settings.addons[id] : (manifest.defaultEnabled ?? true);
+  state.settings.addons[id] = enabled;
+  if(enabled && typeof manifest.enable==='function'){ try{ manifest.enable(window.KQuiz); }catch{} }
+  refreshAddonsUI();
+}
+function setAddonEnabled(id,on){
+  if(!addons[id]) return;
+  state.settings.addons = state.settings.addons || {};
+  const was = !!state.settings.addons[id];
+  state.settings.addons[id] = !!on;
+  save();
+  try{
+    if(on && !was && typeof addons[id].enable==='function') addons[id].enable(window.KQuiz);
+    if(!on && was && typeof addons[id].disable==='function') addons[id].disable();
+  }catch{}
+  refreshAddonsUI();
+}
+function refreshAddonsUI(){
+  const box = document.getElementById('addonsList');
+  if(!box) return;
+  box.innerHTML='';
+  Object.values(addons).forEach(m=>{
+    const row = el('div',{class:'addonItem'});
+    const cb  = el('input',{type:'checkbox'});
+    cb.checked = !!(state.settings.addons && state.settings.addons[m.id]);
+    cb.addEventListener('change', e=> setAddonEnabled(m.id, e.target.checked));
+    const meta = el('div',{class:'addonMeta'},
+      el('div',{class:'addonName'}, m.name || m.id),
+      el('div',{class:'addonDesc'}, m.description || '')
+    );
+    row.appendChild(cb); row.appendChild(meta);
+    box.appendChild(row);
+  });
+}
+
 window.KQuiz = {
   state, on, off, emit, use,
   util:{el,$,$$,shuffle,clamp,parseAnswer},
-  control:{pauseMain,resumeFlow,nextQuestionNow,setChatGuard,clearChatGuard,getRandomQuestion}
+  control:{pauseMain,resumeFlow,nextQuestionNow,setChatGuard,clearChatGuard,getRandomQuestion},
+  registerAddon, setAddonEnabled
 };
