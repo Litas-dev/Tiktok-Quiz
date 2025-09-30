@@ -178,24 +178,39 @@
   </aside>
 
   <main>
+    
     <section id="home" class="section active">
       <div class="board">
         <h1 class="title">Kostelio klausimynas</h1>
         <div class="card rules">
-          <div style="text-align:center; font-weight:900; font-size:clamp(18px,3.4vw,26px); margin-bottom:6px">Taisyklės</div>
+          <div style="text-align:center; font-weight:900; font-size:clamp(18px,3.4vw,26px); margin-bottom:6px">Kaip žaisti</div>
           <ul>
-            <li>Žaidėjai atsako BALSU. Chat tiltas fiksuoja tik „A/B/C/D“ ar „1/2/3/4“.</li>
-            <li>Laikmatis matomas juosta. Atsakymai priimami tik kol laikas BĖGA.</li>
-            <li>+10 taškų už teisingą. Fiksuojamas pirmas atsakymas, keisti negalima.</li>
-            <div style="text-align:center; font-weight:900; font-size:clamp(18px,3.4vw,26px); margin-bottom:6px">Draugai</div>
+            <li>Kai pasirodo klausimas, rašyk pokalbyje <b>A, B, C arba D</b> (arba <b>1, 2, 3, 4</b>).</li>
+            <li>Atsakymai priimami tik kol bėga laikmatis.</li>
+            <li>Už teisingą atsakymą – <b>+10 taškų</b>.</li>
+            <li>Fiksuojamas tik <b>pirmas</b> tavo atsakymas – keisti negalima.</li>
+            <li>Pasiekus <b>100 / 200 / 300…</b> taškų – <b>asmeninis iššūkis</b> su trumpu laikmačiu: teisingai +10, klaida −50% tavo taškų.</li>
+          </ul>
+
+          <div style="text-align:center; font-weight:900; font-size:clamp(18px,3.4vw,26px); margin:12px 0 6px">Taisyklės</div>
+          <ul>
+            <li>Atsakymai su kitais simboliais ar žodžiais gali būti <b>nepriimti</b>.</li>
+            <li>Spam, įžeidos ar dubliuoti atsakymai gali būti <b>anuliuoti</b>.</li>
+            <li>Vedėjo sprendimas yra <b>galutinis</b>.</li>
+          </ul>
+
+          <div style="text-align:center; font-weight:900; font-size:clamp(18px,3.4vw,26px); margin:12px 0 6px">Draugai</div>
+          <ul>
             <li>Muzika (Absurd World)</li>
           </ul>
+
           <div style="text-align:center; margin-top:12px">
             <button class="btn ok" onclick="nav('game');startGame()">Start</button>
           </div>
         </div>
       </div>
     </section>
+
 
     <section id="game" class="section">
       <div class="board">
@@ -251,6 +266,13 @@
             </div>
             <div class="muted" style="margin-top:8px">Laukiamas formatas: <code>{type:'chat', userId:'...', displayName:'...', avatar:'...', text:'...'}</code></div>
           </div>
+          
+          <div class="card">
+            <h3 style="margin:0 0 8px">Papildiniai (Add‑ons)</h3>
+            <div class="muted" style="margin:0 0 8px">Įjunk / išjunk funkcijas be perkrovimo.</div>
+            <div id="addonsList" class="addons"></div>
+          </div>
+
           <div class="card">
             <h3 style="margin:0 0 8px">Versija</h3>
             <div>v2.8 mobile-first</div>
