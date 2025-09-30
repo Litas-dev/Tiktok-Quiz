@@ -1,0 +1,1102 @@
+[
+  {
+    "q": "Kokiais metais pasirašyta Versalio sutartis?",
+    "correct": "1919",
+    "wrong": [
+      "1913",
+      "1925",
+      "1954"
+    ],
+    "note": "Pokarinė tvarka ir Tautų Sąjunga.",
+    "cat": "XX a. istorija"
+  },
+  {
+    "q": "Kokiais metais prasidėjo Šimtmetis karas?",
+    "correct": "1337",
+    "wrong": [
+      "1355",
+      "1319",
+      "1367"
+    ],
+    "note": "Anglija prieš Prancūziją.",
+    "cat": "Viduramžiai"
+  },
+  {
+    "q": "Kuri valstybė 1918 m. pirmoji de facto pripažino Lietuvos nepriklausomybę?",
+    "correct": "Vokietija",
+    "wrong": [
+      "Lenkija",
+      "JAV",
+      "Švedija"
+    ],
+    "note": "Vokietijos administracijos kontekstas.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kuri 1861 m. reforma panaikino baudžiavą Rusijoje?",
+    "correct": "Aleksandro II emancipacija",
+    "wrong": [
+      "Stolypino reforma",
+      "Dekabristų programos",
+      "Oktobristų manifestas"
+    ],
+    "note": "1861 m. panaikinta baudžiava.",
+    "cat": "Rytų Europos istorija"
+  },
+  {
+    "q": "Kokiais metais paskelbtas Milano ediktas?",
+    "correct": "313",
+    "wrong": [
+      "343",
+      "310",
+      "322"
+    ],
+    "note": "Religinė tolerancija krikščionims.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais pastatyta Berlyno siena?",
+    "correct": "1961",
+    "wrong": [
+      "1952",
+      "1981",
+      "1943"
+    ],
+    "note": "VDR atskyrė Vakarų sektorius.",
+    "cat": "Šaltasis karas"
+  },
+  {
+    "q": "Kokiais metais sudaryta Krėvos unija?",
+    "correct": "1385",
+    "wrong": [
+      "1415",
+      "1420",
+      "1378"
+    ],
+    "note": "Jogailos ir Jadvygos dinastinis aljansas.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kuri sausumos kova 1709 m. nulėmė Švedijos nuosmukį?",
+    "correct": "Poltavos mūšis",
+    "wrong": [
+      "Narvos mūšis",
+      "Fraustadto mūšis",
+      "Kopenhagos mūšis"
+    ],
+    "note": "Petro I pergalė prieš Karolį XII.",
+    "cat": "Rytų Europos istorija"
+  },
+  {
+    "q": "Koks dokumentas 1215 m. apribojo karaliaus valdžią Anglijoje?",
+    "correct": "Magna Carta",
+    "wrong": [
+      "Teisių bilis",
+      "Petition of Right",
+      "Habeas Corpus"
+    ],
+    "note": "Teisinių laisvių ištakos.",
+    "cat": "Viduramžiai"
+  },
+  {
+    "q": "Kokiais metais įvyko Nikėjos Susirinkimas?",
+    "correct": "325",
+    "wrong": [
+      "322",
+      "335",
+      "310"
+    ],
+    "note": "Pirmasis visuotinis Bažnyčios susirinkimas.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kuris 1975 m. dokumentas įtvirtino saugumo principus Europoje?",
+    "correct": "Helsinkio Baigiamasis aktas",
+    "wrong": [
+      "Varšuvos aktas",
+      "Briuselio chartija",
+      "Romos aktas"
+    ],
+    "note": "KBSE susitarimas.",
+    "cat": "Šaltasis karas"
+  },
+  {
+    "q": "Kuri dinastija valdė Kiniją iki 1912 m.?",
+    "correct": "Čingų dinastija",
+    "wrong": [
+      "Mingų dinastija",
+      "Songų dinastija",
+      "Juanų dinastija"
+    ],
+    "note": "1644–1912 m. laikotarpis.",
+    "cat": "Azijos istorija"
+  },
+  {
+    "q": "Koks dokumentas 1689 m. įtvirtino parlamentinę monarchiją Anglijoje?",
+    "correct": "Teisių bilis",
+    "wrong": [
+      "Magna Carta",
+      "Augsburgo taika",
+      "Utrechto taika"
+    ],
+    "note": "Po Šlovingosios revoliucijos.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais Kolumbas pasiekė Ameriką?",
+    "correct": "1492",
+    "wrong": [
+      "1474",
+      "1501",
+      "1507"
+    ],
+    "note": "Pirmoji kelionė per Atlantą.",
+    "cat": "Didieji atradimai"
+  },
+  {
+    "q": "Kas vadinamas „Geležiniu kancleriu“ Vokietijoje?",
+    "correct": "Otas fon Bismarkas",
+    "wrong": [
+      "Vilhelmas I",
+      "Fridrichas Didysis",
+      "Helmutas Šmidtas"
+    ],
+    "note": "Vokietijos suvienijimo architektas.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais vyko Prahos pavasaris?",
+    "correct": "1968",
+    "wrong": [
+      "1974",
+      "1971",
+      "1967"
+    ],
+    "note": "Reformos numalšintos invazija.",
+    "cat": "Šaltasis karas"
+  },
+  {
+    "q": "Kokiais metais paskelbtas Kovo 11‑osios Aktas?",
+    "correct": "1990",
+    "wrong": [
+      "1991",
+      "1988",
+      "1989"
+    ],
+    "note": "Atkūrimas nepriklausomybės Lietuvoje.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kuris 1942–1943 m. mūšis nulėmė lūžį Rytuose?",
+    "correct": "Stalingrado mūšis",
+    "wrong": [
+      "Kursko mūšis",
+      "Maskvos mūšis",
+      "Smolensko mūšis"
+    ],
+    "note": "Vokietijos armijos sustabdytos.",
+    "cat": "XX a. istorija"
+  },
+  {
+    "q": "Kas išleido „Principia Mathematica“ 1687 m.?",
+    "correct": "Izaokas Niutonas",
+    "wrong": [
+      "Galilėjus",
+      "Dekartas",
+      "Leibnicas"
+    ],
+    "note": "Klasikinės mechanikos dėsniai.",
+    "cat": "Mokslų istorija"
+  },
+  {
+    "q": "Kokiais metais pasirašyta Verduno sutartis?",
+    "correct": "843",
+    "wrong": [
+      "813",
+      "849",
+      "861"
+    ],
+    "note": "Padalyta Frankų imperija.",
+    "cat": "Viduramžiai"
+  },
+  {
+    "q": "Kuri 1979 m. revoliucija nuvertė šachą Irane?",
+    "correct": "Irano islamo revoliucija",
+    "wrong": [
+      "Rožių revoliucija",
+      "Aksominė revoliucija",
+      "Oranžinė revoliucija"
+    ],
+    "note": "Ajatolos valdžia.",
+    "cat": "Artimųjų Rytų istorija"
+  },
+  {
+    "q": "Kas įkūrė Mogolų imperiją Indijoje 1526 m.?",
+    "correct": "Babūras",
+    "wrong": [
+      "Akbaras",
+      "Šachas Džahanas",
+      "Aurangzebas"
+    ],
+    "note": "Pergalė prie Pani Patos.",
+    "cat": "Azijos istorija"
+  },
+  {
+    "q": "Kokiais metais įvyko Žalgirio mūšis?",
+    "correct": "1410",
+    "wrong": [
+      "1398",
+      "1415",
+      "1395"
+    ],
+    "note": "Pergalė prieš Ordiną.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kokiais metais vyko Vaterlo mūšis?",
+    "correct": "1815",
+    "wrong": [
+      "1830",
+      "1850",
+      "1780"
+    ],
+    "note": "Napoleono galas.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais Karolis Didysis vainikuotas imperatoriumi?",
+    "correct": "800",
+    "wrong": [
+      "807",
+      "795",
+      "818"
+    ],
+    "note": "Popiežius Leonas III Romoje.",
+    "cat": "Viduramžiai"
+  },
+  {
+    "q": "Kokiais metais įvyko Kanos mūšis?",
+    "correct": "216 m. pr. Kr.",
+    "wrong": [
+      "186 m. pr. Kr.",
+      "204 m. pr. Kr.",
+      "191 m. pr. Kr."
+    ],
+    "note": "Hanibalas apsupo romėnus.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais mongolai sunaikino Bagdadą?",
+    "correct": "1258",
+    "wrong": [
+      "1246",
+      "1223",
+      "1283"
+    ],
+    "note": "Abasidų kalifato pabaiga.",
+    "cat": "Viduramžiai"
+  },
+  {
+    "q": "Kokiais metais vyko Tūro (Puatie) mūšis?",
+    "correct": "732",
+    "wrong": [
+      "737",
+      "772",
+      "752"
+    ],
+    "note": "Karolis Martelis sustabdė arabų plėtrą.",
+    "cat": "Viduramžiai"
+  },
+  {
+    "q": "Kokiais metais vyko Prahos defenestracija?",
+    "correct": "1618",
+    "wrong": [
+      "1653",
+      "1621",
+      "1624"
+    ],
+    "note": "Trisdešimtmečio karo pradžia.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kas parašė „Komunistų partijos manifestą“ su Karlu Marxu?",
+    "correct": "Frydrichas Engelsas",
+    "wrong": [
+      "Leninas",
+      "Rosa Liuksemburg",
+      "Plekhanovas"
+    ],
+    "note": "1848 m. politinis traktatas.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Koks susitarimas 1920 m. pripažino Lietuvos nepriklausomybę iš RSFSR pusės?",
+    "correct": "Taikos sutartis su RSFSR",
+    "wrong": [
+      "Rygos taika",
+      "Suvalkų sutartis",
+      "Tartu sutartis"
+    ],
+    "note": "1920 m. liepos 12 d.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kokiais metais prasidėjo Peloponeso karas?",
+    "correct": "431 m. pr. Kr.",
+    "wrong": [
+      "433 m. pr. Kr.",
+      "439 m. pr. Kr.",
+      "449 m. pr. Kr."
+    ],
+    "note": "Atėnai prieš Spartą.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais prasidėjo Tridento Susirinkimas?",
+    "correct": "1545",
+    "wrong": [
+      "1540",
+      "1557",
+      "1515"
+    ],
+    "note": "Kontrreformacijos atrama.",
+    "cat": "Reformacija"
+  },
+  {
+    "q": "Kokiais metais vyko Aženkūro mūšis?",
+    "correct": "1415",
+    "wrong": [
+      "1419",
+      "1413",
+      "1414"
+    ],
+    "note": "Anglų lankininkų pergalė.",
+    "cat": "Viduramžiai"
+  },
+  {
+    "q": "Kokiais metais mirė Aleksandras Makedonietis?",
+    "correct": "323 m. pr. Kr.",
+    "wrong": [
+      "338 m. pr. Kr.",
+      "363 m. pr. Kr.",
+      "325 m. pr. Kr."
+    ],
+    "note": "Mirtis Babilone.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kuris Lietuvos valdovas vainikuotas karaliumi 1253 m.?",
+    "correct": "Mindaugas",
+    "wrong": [
+      "Gediminas",
+      "Vytautas",
+      "Algirdas"
+    ],
+    "note": "Vienintelis Lietuvos karalius.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kokiais metais įvyko Ruandos genocidas?",
+    "correct": "1994",
+    "wrong": [
+      "2004",
+      "1959",
+      "2003"
+    ],
+    "note": "Tutsi ir nuosaikūs hutu tapo taikiniais.",
+    "cat": "XX a. pabaiga"
+  },
+  {
+    "q": "Kokiais metais įvyko D‑diena Normandijoje?",
+    "correct": "1944",
+    "wrong": [
+      "1929",
+      "1956",
+      "1919"
+    ],
+    "note": "Sąjungininkų desantas birželio 6 d.",
+    "cat": "XX a. istorija"
+  },
+  {
+    "q": "Kuris 1942 m. jūrų mūšis sustabdė Japoniją?",
+    "correct": "Midvėjaus mūšis",
+    "wrong": [
+      "Koralų jūros mūšis",
+      "Gvadalkanalo mūšis",
+      "Filipinų jūros mūšis"
+    ],
+    "note": "Ramiojo vandenyno karo lūžis.",
+    "cat": "XX a. istorija"
+  },
+  {
+    "q": "Kas laikomas algebros pradininku?",
+    "correct": "Al‑Chorezmis",
+    "wrong": [
+      "Avicena",
+      "Averojus",
+      "Omaras Chajamas"
+    ],
+    "note": "IX a. „al‑jabr“ traktatas.",
+    "cat": "Mokslų istorija"
+  },
+  {
+    "q": "Kokiais metais žlugo Vakarų Romos imperija?",
+    "correct": "476",
+    "wrong": [
+      "501",
+      "470",
+      "446"
+    ],
+    "note": "Odoakras nuvertė Romulą Augustulą.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais priimta JAV Nepriklausomybės deklaracija?",
+    "correct": "1776",
+    "wrong": [
+      "1764",
+      "1794",
+      "1758"
+    ],
+    "note": "13 kolonijų atsiskyrė nuo Britanijos.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais vyko Salamino jūrų mūšis?",
+    "correct": "480 m. pr. Kr.",
+    "wrong": [
+      "495 m. pr. Kr.",
+      "515 m. pr. Kr.",
+      "482 m. pr. Kr."
+    ],
+    "note": "Graikų laivynas nugalėjo persus.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais prasidėjo Septynmetis karas?",
+    "correct": "1756",
+    "wrong": [
+      "1760",
+      "1763",
+      "1762"
+    ],
+    "note": "Globalus kolonijinis konfliktas.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais prasidėjo JAV pilietinis karas?",
+    "correct": "1861",
+    "wrong": [
+      "1853",
+      "1852",
+      "1865"
+    ],
+    "note": "Šiaurė prieš Pietus.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kas buvo Turkijos Respublikos kūrėjas?",
+    "correct": "Mustafa Kemalis Atatiurkas",
+    "wrong": [
+      "Enver Paša",
+      "Sultonas Mehmedas VI",
+      "Recepas T. Erdoganas"
+    ],
+    "note": "Sekuliarizacija ir reformos.",
+    "cat": "Artimųjų Rytų istorija"
+  },
+  {
+    "q": "Kokiais metais įvyko Zamos mūšis?",
+    "correct": "202 m. pr. Kr.",
+    "wrong": [
+      "212 m. pr. Kr.",
+      "208 m. pr. Kr.",
+      "199 m. pr. Kr."
+    ],
+    "note": "Scipionas Afrikietis nugalėjo Hanibalą.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais prasidėjo Antrasis pasaulinis karas?",
+    "correct": "1939",
+    "wrong": [
+      "1951",
+      "1946",
+      "1927"
+    ],
+    "note": "Vokietija užpuolė Lenkiją.",
+    "cat": "XX a. istorija"
+  },
+  {
+    "q": "Kokiais metais vyko Vienos kongresas (pabaiga)?",
+    "correct": "1815",
+    "wrong": [
+      "1775",
+      "1780",
+      "1790"
+    ],
+    "note": "Europa pertvarkyta.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kuris 1777 m. mūšis tapo JAV karo lūžiu?",
+    "correct": "Saratogos mūšis",
+    "wrong": [
+      "Jorktauno mūšis",
+      "Bunker Hill mūšis",
+      "Trentono mūšis"
+    ],
+    "note": "Prancūzijos parama amerikiečiams.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kas 1605–1621 m. garsėjo kaip LDK karvedys?",
+    "correct": "Jonas Karolis Chodkevičius",
+    "wrong": [
+      "K. Ostrogiškis",
+      "J. Sapiega",
+      "M. K. Pacas"
+    ],
+    "note": "Pergalės prie Salaspilio ir Chotyno.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kokiais metais vyko Trafalgaro mūšis?",
+    "correct": "1805",
+    "wrong": [
+      "1804",
+      "1801",
+      "1785"
+    ],
+    "note": "Britų jūrų dominavimas.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais įvyko Šlovingoji revoliucija?",
+    "correct": "1688",
+    "wrong": [
+      "1673",
+      "1689",
+      "1718"
+    ],
+    "note": "Dinastijos kaita Anglijoje.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kas vadovavo 1410 m. Kryžiuočių ordinui?",
+    "correct": "Ulrichas fon Jungingenas",
+    "wrong": [
+      "Konradas fon Jungingenas",
+      "H. fon Plauenas",
+      "H. Dusemeras"
+    ],
+    "note": "Žuvo Žalgirio mūšyje.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kokiais metais įvyko Spalio revoliucija Rusijoje?",
+    "correct": "1917",
+    "wrong": [
+      "1922",
+      "1909",
+      "1935"
+    ],
+    "note": "Bolševikai perėmė valdžią.",
+    "cat": "XX a. istorija"
+  },
+  {
+    "q": "Kokiais metais prasidėjo Pirmasis pasaulinis karas?",
+    "correct": "1914",
+    "wrong": [
+      "1922",
+      "1911",
+      "1904"
+    ],
+    "note": "Sarajevas ir mobilizacijos.",
+    "cat": "XX a. istorija"
+  },
+  {
+    "q": "Kas parašė „Apie rūšmių kilmę“?",
+    "correct": "Čarlzas Darvinas",
+    "wrong": [
+      "Gregor Mendelis",
+      "Liuji Pastueras",
+      "Frensis Beikonas"
+    ],
+    "note": "1859 m. evoliucijos veikalas.",
+    "cat": "Mokslų istorija"
+  },
+  {
+    "q": "Kokiais metais žmogus nusileido Mėnulyje?",
+    "correct": "1969",
+    "wrong": [
+      "1960",
+      "1961",
+      "1944"
+    ],
+    "note": "„Apollo 11“ misija.",
+    "cat": "Mokslų istorija"
+  },
+  {
+    "q": "Kuri sutartis 1957 m. įkūrė EEB?",
+    "correct": "Romos sutartis",
+    "wrong": [
+      "Mastrichto sutartis",
+      "Lisabonos sutartis",
+      "Nicos sutartis"
+    ],
+    "note": "Europos integracijos pradžia.",
+    "cat": "Europos integracija"
+  },
+  {
+    "q": "Kuri sostinė buvo Inkų imperijos centras?",
+    "correct": "Kuskas",
+    "wrong": [
+      "Kito",
+      "Lima",
+      "La Pasas"
+    ],
+    "note": "Anduose įkurtas miestas.",
+    "cat": "Amerikos civilizacijos"
+  },
+  {
+    "q": "Kuri deklaracija 1917 m. žadėjo „nacionalinius namus“ Palestinoje?",
+    "correct": "Balfūro deklaracija",
+    "wrong": [
+      "San Remo deklaracija",
+      "Sykeso–Pikot sutartis",
+      "Camp David deklaracija"
+    ],
+    "note": "Didžiosios Britanijos laiškas.",
+    "cat": "Artimųjų Rytų istorija"
+  },
+  {
+    "q": "Kas paskelbė 95 tezes Vitenberge?",
+    "correct": "Martynas Liuteris",
+    "wrong": [
+      "Janas Husas",
+      "Uldrichas Cvinglis",
+      "Jonas Kalvinas"
+    ],
+    "note": "1517 m. Reformacijos pradžia.",
+    "cat": "Reformacija"
+  },
+  {
+    "q": "Kokiais metais Cezaris peržengė Rubikoną?",
+    "correct": "49",
+    "wrong": [
+      "84",
+      "61",
+      "39"
+    ],
+    "note": "Prasidėjo pilietinis karas Romoje.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais nugriauta Berlyno siena?",
+    "correct": "1989",
+    "wrong": [
+      "2001",
+      "1980",
+      "1987"
+    ],
+    "note": "Bloko griūtis.",
+    "cat": "Šaltasis karas"
+  },
+  {
+    "q": "Kurioje konferencijoje 1945 m. susitiko „didysis trejetas“?",
+    "correct": "Jaltoje",
+    "wrong": [
+      "Teherane",
+      "Potsdame",
+      "Jaltoje‑Potsdame"
+    ],
+    "note": "Vasario mėn. susitikimas Kryme.",
+    "cat": "XX a. istorija"
+  },
+  {
+    "q": "Kokiais metais suvienyta Vokietija?",
+    "correct": "1871",
+    "wrong": [
+      "1880",
+      "1906",
+      "1836"
+    ],
+    "note": "Versalyje paskelbta imperija.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais pasirašyta Magna Carta?",
+    "correct": "1215",
+    "wrong": [
+      "1207",
+      "1216",
+      "1221"
+    ],
+    "note": "Apribota Anglijos karaliaus valdžia.",
+    "cat": "Viduramžiai"
+  },
+  {
+    "q": "Kokiais metais įvyko Sausio 13‑osios įvykiai?",
+    "correct": "1991",
+    "wrong": [
+      "2026",
+      "1999",
+      "1995"
+    ],
+    "note": "Sovietų agresija Vilniuje.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kuri 1805 m. pergalė laikoma Napoleono didžiausia?",
+    "correct": "Austerlico mūšis",
+    "wrong": [
+      "Borodino mūšis",
+      "Leipcigo mūšis",
+      "Jenų–Aueršteto mūšis"
+    ],
+    "note": "Trijų imperatorių mūšis.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais nugalėta Ispanijos Armada?",
+    "correct": "1588",
+    "wrong": [
+      "1553",
+      "1595",
+      "1583"
+    ],
+    "note": "Anglijos pergalė jūroje.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais priimta Gegužės 3‑iosios Konstitucija?",
+    "correct": "1791",
+    "wrong": [
+      "1789",
+      "1809",
+      "1799"
+    ],
+    "note": "Moderni ATR konstitucija.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kokiais metais prasidėjo Prancūzijos revoliucija?",
+    "correct": "1789",
+    "wrong": [
+      "1783",
+      "1784",
+      "1794"
+    ],
+    "note": "Bastilijos šturmas ir reformos.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais vyko Termopilų mūšis?",
+    "correct": "480 m. pr. Kr.",
+    "wrong": [
+      "460 m. pr. Kr.",
+      "483 m. pr. Kr.",
+      "477 m. pr. Kr."
+    ],
+    "note": "Leonidas ir 300 spartiečių.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais vyko Berlyno konferencija Afrikai dalytis?",
+    "correct": "1884",
+    "wrong": [
+      "1919",
+      "1844",
+      "1859"
+    ],
+    "note": "Kolonijų dalybų taisyklės.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kuri 1995 m. tragedija nutiko Bosnijoje?",
+    "correct": "Srebrenicos žudynės",
+    "wrong": [
+      "Ruandos genocidas",
+      "Sabros ir Šatilos žudynės",
+      "Halabdžos dujų ataka"
+    ],
+    "note": "Tūkstančiai aukų.",
+    "cat": "XX a. pabaiga"
+  },
+  {
+    "q": "Kokiais metais vyko Cušimos jūrų mūšis?",
+    "correct": "1905",
+    "wrong": [
+      "1885",
+      "1923",
+      "1893"
+    ],
+    "note": "Rusijos–Japonijos karo lūžis.",
+    "cat": "XX a. istorija"
+  },
+  {
+    "q": "Kokiais metais vyko Hastingso mūšis?",
+    "correct": "1066",
+    "wrong": [
+      "1048",
+      "1061",
+      "1060"
+    ],
+    "note": "Normanų užkariavimas Anglijoje.",
+    "cat": "Viduramžiai"
+  },
+  {
+    "q": "Kas vadovavo „Druskos maršui“ Indijoje?",
+    "correct": "Mahátma Gandis",
+    "wrong": [
+      "Džavaharlalis Neru",
+      "M. A. Džina",
+      "Subhas Č. Bosė"
+    ],
+    "note": "1930 m. pilietinis nepaklusnumas.",
+    "cat": "Azijos istorija"
+  },
+  {
+    "q": "Kuri 1916 m. slapta sutartis padalijo Osmanų Artimuosius Rytus?",
+    "correct": "Sykeso–Pikot sutartis",
+    "wrong": [
+      "Sevro sutartis",
+      "Lozano sutartis",
+      "San Remo susitarimas"
+    ],
+    "note": "Britų–prancūzų susitarimas.",
+    "cat": "Artimųjų Rytų istorija"
+  },
+  {
+    "q": "Kokiais metais įvyko Akcija (Actiumo) mūšis?",
+    "correct": "31 m. pr. Kr.",
+    "wrong": [
+      "51 m. pr. Kr.",
+      "28 m. pr. Kr.",
+      "19 m. pr. Kr."
+    ],
+    "note": "Oktavianas nugalėjo Antonijų ir Kleopatrą.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kuris dokumentas 1791 m. modernizavo ATR?",
+    "correct": "Gegužės 3‑iosios Konstitucija",
+    "wrong": [
+      "1793 m. Konstitucija",
+      "Varsuvos aktas",
+      "Liublino statutas"
+    ],
+    "note": "Pirmoji Europoje rašytinė konstitucija po JAV.",
+    "cat": "Lietuvos istorija"
+  },
+  {
+    "q": "Kuri jūrų kova 1571 m. sustabdė osmanus Viduržemyje?",
+    "correct": "Lepanto mūšis",
+    "wrong": [
+      "Navarino mūšis",
+      "Salamino mūšis",
+      "Abukiro mūšis"
+    ],
+    "note": "Šventoji lyga nugalėjo osmanus.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kuri civilizacija sukūrė klinaraštį?",
+    "correct": "Šumerai",
+    "wrong": [
+      "Hetitai",
+      "Asirai",
+      "Akkadiečiai"
+    ],
+    "note": "III tūkst. pr. Kr.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais krito Konstantinopolis?",
+    "correct": "1453",
+    "wrong": [
+      "1413",
+      "1438",
+      "1450"
+    ],
+    "note": "Bizantijos žlugimas.",
+    "cat": "Viduramžiai"
+  },
+  {
+    "q": "Kuris 1598 m. ediktas suteikė laisvę hugenotams?",
+    "correct": "Nanto ediktas",
+    "wrong": [
+      "Nimo ediktas",
+      "Nicos ediktas",
+      "Manto ediktas"
+    ],
+    "note": "Religinė taika Prancūzijoje.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais subyrėjo SSRS?",
+    "correct": "1991",
+    "wrong": [
+      "1987",
+      "1982",
+      "1985"
+    ],
+    "note": "Sąjungos respublikos atsiskyrė.",
+    "cat": "Šaltasis karas"
+  },
+  {
+    "q": "Kokiais metais pasirašyta Utrechto taika?",
+    "correct": "1713",
+    "wrong": [
+      "1720",
+      "1714",
+      "1698"
+    ],
+    "note": "Ispanijos įpėdinystės karo pabaiga.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais įvyko Kubos raketų krizė?",
+    "correct": "1962",
+    "wrong": [
+      "2002",
+      "1950",
+      "1953"
+    ],
+    "note": "JAV ir SSRS konfrontacija.",
+    "cat": "Šaltasis karas"
+  },
+  {
+    "q": "Kokiais metais nužudytas Julijus Cezaris?",
+    "correct": "44 m. pr. Kr.",
+    "wrong": [
+      "40 m. pr. Kr.",
+      "38 m. pr. Kr.",
+      "39 m. pr. Kr."
+    ],
+    "note": "Idų dieną Romoje.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais suvienyta Italija?",
+    "correct": "1861",
+    "wrong": [
+      "1821",
+      "1864",
+      "1849"
+    ],
+    "note": "Italijos karalystės susikūrimas.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kuri 1899 m. konvencija pradėjo karo teisės kodifikaciją?",
+    "correct": "Hagos konvencija",
+    "wrong": [
+      "Ženevos konvencija (1864)",
+      "Lozano sutartis",
+      "Versalio sutartis"
+    ],
+    "note": "1899 ir 1907 m. konferencijos.",
+    "cat": "XX a. ištakos"
+  },
+  {
+    "q": "Kuris 1807 m. susitarimas sustabdė kovas tarp Prancūzijos ir Rusijos?",
+    "correct": "Tilžės taika",
+    "wrong": [
+      "Amjeno taika",
+      "Campo Formijo taika",
+      "Amienso taika"
+    ],
+    "note": "Napoleono karų epizodas.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kuris 1954 m. mūšis nulėmė Prancūzijos pasitraukimą iš Indokinijos?",
+    "correct": "Djenbienfu mūšis",
+    "wrong": [
+      "Hue mūšis",
+      "Saigono mūšis",
+      "Khe Sanh mūšis"
+    ],
+    "note": "Vietminų pergalė.",
+    "cat": "XX a. istorija"
+  },
+  {
+    "q": "Kokiais metais kilo 1848 m. revoliucijos?",
+    "correct": "1848",
+    "wrong": [
+      "1847",
+      "1842",
+      "1818"
+    ],
+    "note": "„Tautų pavasaris“.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais Liuteris paskelbė 95 tezes?",
+    "correct": "1517",
+    "wrong": [
+      "1513",
+      "1547",
+      "1507"
+    ],
+    "note": "Reformacijos pradžia.",
+    "cat": "Reformacija"
+  },
+  {
+    "q": "Kokiais metais Napoleonas tapo imperatoriumi?",
+    "correct": "1804",
+    "wrong": [
+      "1809",
+      "1789",
+      "1764"
+    ],
+    "note": "Karūnavimas Paryžiuje.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais baigėsi Peloponeso karas?",
+    "correct": "404 m. pr. Kr.",
+    "wrong": [
+      "412 m. pr. Kr.",
+      "444 m. pr. Kr.",
+      "394 m. pr. Kr."
+    ],
+    "note": "Sparta nugalėjo Atėnus.",
+    "cat": "Senovės istorija"
+  },
+  {
+    "q": "Kokiais metais pasirašyta Vestfalijos taika?",
+    "correct": "1648",
+    "wrong": [
+      "1656",
+      "1640",
+      "1683"
+    ],
+    "note": "Valstybių suverenitetas.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais vyko Austerlico mūšis?",
+    "correct": "1805",
+    "wrong": [
+      "1798",
+      "1796",
+      "1795"
+    ],
+    "note": "Trijų imperatorių mūšis.",
+    "cat": "Naujieji laikai"
+  },
+  {
+    "q": "Kokiais metais sudaryta Liublino unija?",
+    "correct": "1569",
+    "wrong": [
+      "1564",
+      "1572",
+      "1549"
+    ],
+    "note": "Sukurta Abiejų Tautų Respublika.",
+    "cat": "Lietuvos istorija"
+  }
+]
