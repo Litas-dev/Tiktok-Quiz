@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#0A0F1F"/>
-<title>Kostelio klausimynas — v2.8 mobile</title>
+<title>Kostelio klausimynas — v2.9 live</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,7 +15,7 @@
       </svg>
     </button>
     <div class="brand">Kostelio klausimynas</div>
-    <div class="ver">v2.8</div>
+    <div class="ver">v2.9</div>
     <div class="spacer"></div>
     <nav class="topnav">
       <button class="navbtn" onclick="nav('home')">Pradžia</button>
@@ -109,9 +109,19 @@
             <div class="muted" style="margin-top:8px">Laukiamas formatas: <code>{type:'chat', userId:'...', displayName:'...', avatar:'...', text:'...'}</code></div>
           </div>
           <div class="card">
+            <h3 style="margin:0 0 8px">Live režimas</h3>
+            <label><input type="checkbox" id="liveMode" onchange="toggleLive(this.checked)"> Įjungti „TikTok Live“ režimą</label>
+            <div style="margin-top:8px">
+              <label>Apatinis chat aukštis
+                <input id="chatSafe" class="input" type="number" min="0" max="400" value="120" onchange="setChatSafe(this.value)"> px
+              </label>
+            </div>
+            <div class="muted" style="margin-top:8px">Tai nustato UI saugią zoną, kad apačioje nesidengtų su TikTok chatu.</div>
+          </div>
+          <div class="card">
             <h3 style="margin:0 0 8px">Versija</h3>
-            <div>v2.8 mobile-first</div>
-            <div class="muted">Avatarai ir slapyvardžiai iš WS. „curr“ lock. Tik kai bėga laikas.</div>
+            <div>v2.9 live-safe</div>
+            <div class="muted">Live režimas slepia plaukiojantį mygtuką ir kelia valdiklius virš chat zonos.</div>
           </div>
         </div>
       </div>
