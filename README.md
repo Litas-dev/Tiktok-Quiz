@@ -1,68 +1,108 @@
 # Kostelio Klausimynas
 
-**Kostelio Klausimynas** is a mobile‑first quiz game built for interactive TikTok LIVE streams.  
-It is designed to let streamers engage their audience in real time with question‑and‑answer gameplay.
+Mobile‑first quiz for TikTok LIVE. Runs as a static web app. Optional Node relay ingests chat and maps `A/B/C/D` or `1–4` to answers.
 
-## Features
+## Value Proposition
+- Audience engagement with timer‑gated rounds and scoring.
+- Zero backend for core play. Optional WebSocket bridge for chat answers.
+- Add‑on architecture for feature velocity. No core edits required.
 
-- **Mobile‑first responsive UI**: Clean, modern layout that works well on phones and tablets.  
-- **Game flow**:  
-  - Load a question bank from a JSON file.  
-  - Timer‑gated answering with visible progress bar.  
-  - Automatic or manual next question progression.  
-  - Reveal correct answer with optional notes/explanations.  
-- **Scoring system**:  
-  - +10 points for correct answers.  
-  - Tracks leaderboard across rounds.  
-  - Player data stored in memory for session.  
-- **WebSocket chat bridge**:  
-  - Supports integration with TikTok chat via relay server.  
-  - Accepts simple messages like `A/B/C/D` or `1/2/3/4` as valid answers.  
-  - Captures player name and avatar when available.  
-- **Audio feedback**: ticking sound while timer runs, fail sound when nobody answers correctly.  
-- **Lightweight deployment**: Pure HTML, CSS, and JavaScript. No backend required (except optional WebSocket relay).
+## Feature Set
+- Responsive UI optimized for phones.
+- Question bank loader (JSON). Timer, reveal, scoring, leaderboard.
+- Audio cues (tick while active, fail if no winners).
+- Live‑safe layout: bottom safe area to avoid TikTok chat overlap. Toggle in Settings.
+- **Add‑on:** Milestone Solo Challenge (optional module).
 
-## File structure
-
+## Architecture
 ```
-index.html    # Main HTML structure
-style.css     # Stylesheet
-app.js        # Game logic
-quiz-bank.json (example) # Bank of questions (not included here)
+index.html
+style.css
+app.js                 # Core engine with plugin API
+addons/
+  milestone-solo.js    # Add-on: personal challenge at 100/200/300… pts
+server.js              # Example relay (optional)
+package.json
+config.example.json
+```
+Core exposes a lightweight API on `window.KQuiz`:
+
+```js
+// Events
+KQuiz.on('init' | 'questionStart' | 'questionEnd' | 'scoresChanged', handler)
+
+// State and helpers
+KQuiz.state            // game state (players, settings, session)
+KQuiz.util.el, KQuiz.util.$, KQuiz.util.$$, KQuiz.util.parseAnswer
+
+// Control surface
+KQuiz.control.pauseMain()
+KQuiz.control.resumeFlow()
+KQuiz.control.nextQuestionNow()
+KQuiz.control.setChatGuard(fn)   // intercept chat; return truthy to consume
+KQuiz.control.clearChatGuard()
+KQuiz.control.getRandomQuestion() // {q, options[4], keys[4], correctKey, correctText}
 ```
 
-## Getting started
+### Add‑on: Milestone Solo Challenge
+- Trigger: whenever a player’s score crosses 100‑point boundaries (100, 200, 300, …).
+- Flow: core pauses → full‑screen modal with player avatar/name → 12s timed single question.
+- Input gate: only that player’s chat input is accepted during the solo.
+- Scoring: +10 if correct; otherwise reduce current score by 50%.
+- Queue: multiple players run one‑by‑one. Resumes round after queue drains.
+- Implementation lives entirely in `addons/milestone-solo.js` and is loaded via a `<script>` tag.
 
-1. Clone or download this repository.  
-2. Open `index.html` in a browser.  
-3. In **Nustatymai (Settings)**, upload a JSON question bank file.  
-   - Format:  
-     ```json
-     [
-       {
-         "q": "What is 2+2?",
-         "correct": "4",
-         "wrong": ["3","5","6"],
-         "note": "Basic arithmetic",
-         "cat": "math"
-       }
-     ]
-     ```
-4. Start a game from the home screen.
+## Getting Started
+1. Open `index.html` in a modern browser.
+2. Settings → **Live režimas** ON if streaming on TikTok. Set **Apatinis chat aukštis** to match the chat overlay.
+3. Load your question bank JSON.
+4. Press **Start**.
 
-## WebSocket integration
+### Question Bank Format
+```json
+[
+  {
+    "q": "Kada Cezaris peržengė Rubikoną?",
+    "correct": "49",
+    "wrong": ["84", "61", "39"],
+    "note": "49 m. pr. Kr.",
+    "cat": "istorija"
+  }
+]
+```
 
-To enable TikTok LIVE chat answers, run a small Node.js relay server that connects to TikTok via [`tiktok-live-connector`](https://www.npmjs.com/package/tiktok-live-connector) and broadcasts messages over WebSocket.
+## TikTok Chat Relay (Optional)
+Minimal Node relay using `tiktok-live-connector` + WebSocket broadcast.
 
-- Sample `server.js` and `package.json` are typically included in deployment setups.  
-- Default WebSocket URL: `ws://localhost:8081`
+**server.js**
+```js
+// broadcasts {type:'chat', userId, displayName, avatar, text} to ws://localhost:8081
+```
 
-## Use cases
+**package.json**
+```json
+{
+  "name": "tiktok-quiz-relay",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "tiktok-live-connector": "^5",
+    "ws": "^8"
+  },
+  "scripts": { "start": "node server.js" }
+}
+```
 
-- Streamers hosting trivia nights on TikTok LIVE.  
-- Local events or classroom quizzes with audience participation.  
-- Lightweight demo of WebSocket‑driven multiplayer interaction.
+**config.example.json**
+```json
+{ "username": "YOUR_TIKTOK_USERNAME" }
+```
+
+Point the quiz to the relay in Settings. Click **Prisijungti**.
+
+## Keyboard Shortcuts
+- Space: Reveal or continue.
 
 ## License
+MIT.
 
-This project is open source. License: MIT.
