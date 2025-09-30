@@ -3,7 +3,7 @@
   --panel:rgba(16,24,40,.55); --line:#1E2A3F;
   --accent:#7C5CFF; --accent2:#2EE5A9; --danger:#FF5A6E; --ok:#2EE5A9; --warn:#F6C443;
   --safe-top:64px;
-  --safe-bottom:70px;
+  --safe-bottom:120px; /* default; adjustable in settings */
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -125,9 +125,11 @@ a{color:#9cc2ff;text-decoration:none} a:hover{text-decoration:underline}
 
 .float-lb{
   position:fixed; left:50%; transform:translateX(-50%);
-  bottom:10px; z-index:70;
+  bottom: calc(var(--safe-bottom) + 10px); z-index:70;
   background:#0E162B; border:1px solid var(--line); border-radius:16px; padding:10px 16px; font-weight:900; cursor:pointer;
 }
+body.live .float-lb{ display:none }
+
 .lbList{ max-height:60vh; overflow:auto; border:1px solid var(--line); border-radius:12px }
 
 .rules{max-width:780px; margin:0 auto}
@@ -139,6 +141,16 @@ a{color:#9cc2ff;text-decoration:none} a:hover{text-decoration:underline}
   .hamburger{display:flex}
   .topnav{display:none}
 }
+
+/* avatars */
+.av{width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid var(--line)}
+.rowL{display:flex; align-items:center; gap:8px}
+
+/* Live compact mode */
+body.compact #q{font-size: clamp(20px, 4.2vw, 34px)}
+body.compact .choice{padding:14px 12px; font-size: clamp(16px, 3.2vw, 24px)}
+body.compact .key{min-width:50px; height:40px}
+body.compact .btn{padding:10px 14px}
 
 /* avatars */
 .av{width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; border:1px solid var(--line)}
