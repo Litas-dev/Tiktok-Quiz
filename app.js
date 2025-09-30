@@ -1,9 +1,19 @@
+/* KQuiz core v3.0 */
 "use strict";
 const $=(q,r=document)=>r.querySelector(q);
 const $$=(q,r=document)=>Array.from(r.querySelectorAll(q));
 const el=(t,a={},...cs)=>{const n=document.createElement(t);Object.entries(a).forEach(([k,v])=>k==='class'?n.className=v:n.setAttribute(k,v));cs.forEach(c=>n.appendChild(typeof c==='string'?document.createTextNode(c):c));return n;}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+// --- Event bus / plugin API ---
+const _bus = {};
+function on(evt, fn){ (_bus[evt] ||= []).push(fn); }
+function off(evt, fn){ const a=_bus[evt]||[]; const i=a.indexOf(fn); if(i>=0) a.splice(i,1); }
+function emit(evt, payload){ (_bus[evt]||[]).forEach(f=>{ try{ f(payload); }catch{} }); }
+function use(plugin){ try{ plugin(window.KQuiz); }catch{} }
+
+let chatGuard = null; // if set, intercepts chat answers
 
 const state={
   settings:{ secsPerQuestion:20, autoNext:false, sounds:{ticking:true, fail:true}, liveMode:false, chatSafe:120 },
@@ -17,15 +27,16 @@ const state={
   },
   ws:null, wsOk:false
 };
+
 function save(){ try{localStorage.setItem('kquiz', JSON.stringify({settings:state.settings}))}catch{} }
 function restore(){
   try{const s=JSON.parse(localStorage.getItem('kquiz')||'{}'); if(s.settings) Object.assign(state.settings,s.settings);}catch{}
-  const autoNextEl=document.getElementById('autoNext');
-  const secsEl=document.getElementById('secsPerQ');
-  const tickEl=document.getElementById('sndTick');
-  const failEl=document.getElementById('sndFail');
-  const liveEl=document.getElementById('liveMode');
-  const chatSafeEl=document.getElementById('chatSafe');
+  const autoNextEl=$('#autoNext');
+  const secsEl=$('#secsPerQ');
+  const tickEl=$('#sndTick');
+  const failEl=$('#sndFail');
+  const liveEl=$('#liveMode');
+  const chatSafeEl=$('#chatSafe');
   if(autoNextEl) autoNextEl.checked=!!state.settings.autoNext;
   if(secsEl) secsEl.value=state.settings.secsPerQuestion;
   if(tickEl) tickEl.checked=!!state.settings.sounds.ticking;
@@ -34,15 +45,17 @@ function restore(){
   if(chatSafeEl) chatSafeEl.value=state.settings.chatSafe||120;
   applyLiveSettings();
 }
+
 document.addEventListener('DOMContentLoaded',()=>{
   restore();
-  const hamburger=document.getElementById('hamburger');
+  const hamburger=$('#hamburger');
   if(hamburger){ hamburger.addEventListener('click',()=>toggleMenu()); }
+  emit('init');
 });
 
 function nav(id){ $$('.section').forEach(s=>s.classList.remove('active')); $('#'+id).classList.add('active'); }
 function toggleMenu(force){
-  const sidebar=document.getElementById('sidebar');
+  const sidebar=$('#sidebar');
   const open=(typeof force==='boolean')?force:!sidebar.classList.contains('open');
   sidebar.classList.toggle('open',open);
 }
@@ -63,8 +76,8 @@ async function loadJSON(file){
   state.bank=out;
   state.session.deck=shuffle([...Array(out.length).keys()]);
   state.session.i=0; state.session.used={}; state.session.done=0; state.session.curr=null;
-  document.getElementById('bankStat').textContent=`Įkelta ${out.length} klausimų.`;
-  document.getElementById('roundNum').textContent='0';
+  $('#bankStat').textContent=`Įkelta ${out.length} klausimų.`;
+  $('#roundNum').textContent='0';
 }
 
 let timer=null, timeLeft=0, totalTime=0;
@@ -84,9 +97,9 @@ function bootTimer(){
   },1000);
 }
 function updateTimerUI(){
-  document.getElementById('tLeft').textContent=String(Math.max(0,timeLeft));
+  $('#tLeft').textContent=String(Math.max(0,timeLeft));
   const pct=totalTime?100*(totalTime-timeLeft)/totalTime:0;
-  document.getElementById('timerFill').style.width=`${pct}%`;
+  $('#timerFill').style.width=`${pct}%`;
 }
 function nextQ(){
   cancelAuto();
@@ -99,25 +112,26 @@ function nextQ(){
   const opts=[q.correct, ...(q.wrong||[])].slice(0,4); while(opts.length<4) opts.push('');
   const ord=[0,1,2,3]; shuffle(ord); const keys=['A','B','C','D'];
 
-  document.getElementById('q').textContent=q.q;
-  const box=document.getElementById('ans'); box.innerHTML='';
+  $('#q').textContent=q.q;
+  const box=$('#ans'); box.innerHTML='';
   ord.forEach((oi,i)=> box.appendChild(el('div',{class:'choice'}, el('div',{class:'key'}, keys[i]), opts[oi])));
 
   const cKey=keys[ord.indexOf(0)]||'A';
   state.session.correctKey=cKey;
   state.session.answers={}; state.session.counts={A:0,B:0,C:0,D:0};
   state.session.curr={qid, correctKey:cKey, correctText:q.correct||'', note:q.note||''};
-  document.getElementById('lockBtn').classList.remove('hidden');
-  document.getElementById('revealBtn').classList.remove('hidden');
-  document.getElementById('nextBtn').classList.add('hidden');
-  document.getElementById('roundNum').textContent=String(state.session.done+1);
+  $('#lockBtn').classList.remove('hidden');
+  $('#revealBtn').classList.remove('hidden');
+  $('#nextBtn').classList.add('hidden');
+  $('#roundNum').textContent=String(state.session.done+1);
   save();
+  emit('questionStart',{qid, q});
   bootTimer();
 }
 function lockNow(){
   state.session.open=false; state.session.timerRunning=false;
   if(timer){ clearInterval(timer); timer=null; } tickStop();
-  document.getElementById('lockBtn').classList.add('hidden');
+  $('#lockBtn').classList.add('hidden');
 }
 function reveal(auto){
   if(timer){ clearInterval(timer); timer=null; }
@@ -125,19 +139,19 @@ function reveal(auto){
 
   const curr=state.session.curr, correct=curr?curr.correctKey:state.session.correctKey;
   const winners=[];
+  // score updates and event emits
   for(const [id,k] of Object.entries(state.session.answers||{})){
-    if(k===correct){
-      const p=state.players[id]||(state.players[id]={name:id,score:0,nextMilestone:100,avatar:''});
-      p.score=(p.score||0)+10; winners.push({id,name:p.name||id, score:p.score, avatar:p.avatar||''});
-      if(p.score>=(p.nextMilestone||100)){ p.nextMilestone=(p.nextMilestone||100)+100; }
-    }
+    const p=state.players[id]||(state.players[id]={name:id,score:0,nextMilestone:100,avatar:''});
+    const before=p.score||0;
+    if(k===correct){ p.score=before+10; winners.push({id,name:p.name||id, score:p.score, avatar:p.avatar||''}); }
+    emit('scoresChanged',{id, before, after:p.score||0, player:p, correct:(k===correct)});
+    if(p.score>=(p.nextMilestone||100)){ p.nextMilestone=(p.nextMilestone||100)+100; }
   }
-  if(!winners.length && state.settings.sounds.fail){ try{ const f=document.getElementById('failAudio'); f.currentTime=0; f.play(); }catch{} }
 
   try{ if(curr) state.session.used[curr.qid]=true; }catch{}
-  document.getElementById('ovAnswer').textContent=curr?curr.correctText:'';
-  document.getElementById('ovNote').textContent=curr?curr.note:'';
-  const box=document.getElementById('ovWinners'); box.innerHTML='';
+  $('#ovAnswer').textContent=curr?curr.correctText:'';
+  $('#ovNote').textContent=curr?curr.note:'';
+  const box=$('#ovWinners'); box.innerHTML='';
   if(winners.length){
     winners.sort((a,b)=>b.score-a.score);
     winners.forEach(w=>{
@@ -146,29 +160,31 @@ function reveal(auto){
     });
   }else{
     box.appendChild(el('div',{class:'row'}, el('div',{}, 'Niekas neatsakė teisingai'), el('div',{}, '0')));
+    if(state.settings.sounds.fail){ try{ const f=$('#failAudio'); f.currentTime=0; f.play(); }catch{} }
   }
-  document.getElementById('overlay').style.display='flex';
-  document.getElementById('nextBtn').classList.remove('hidden'); save();
+  $('#overlay').style.display='flex';
+  $('#nextBtn').classList.remove('hidden'); save();
 
   if(state.settings.autoNext && auto){
-    window.autoNextTimer=setTimeout(()=>{ if(document.getElementById('overlay').style.display!=='none'){ document.getElementById('overlay').style.display='none'; proceed(); } }, 3000);
+    window.autoNextTimer=setTimeout(()=>{ if($('#overlay').style.display!=='none'){ $('#overlay').style.display='none'; proceed(); } }, 3000);
   }
+  emit('questionEnd',{qid: curr?curr.qid:null, correctKey: correct});
 }
 function proceed(){
-  document.getElementById('overlay').style.display='none';
+  $('#overlay').style.display='none';
   state.session.i++; state.session.done++; state.session.curr=null;
-  document.getElementById('roundNum').textContent=String(state.session.done); save(); nextQ();
+  $('#roundNum').textContent=String(state.session.done); save(); nextQ();
 }
 function finish(){
-  document.getElementById('q').textContent='Klausimai baigėsi.';
-  document.getElementById('ans').innerHTML=''; document.getElementById('lockBtn').classList.add('hidden'); document.getElementById('revealBtn').classList.add('hidden'); document.getElementById('nextBtn').classList.add('hidden');
+  $('#q').textContent='Klausimai baigėsi.';
+  $('#ans').innerHTML=''; $('#lockBtn').classList.add('hidden'); $('#revealBtn').classList.add('hidden'); $('#nextBtn').classList.add('hidden');
 }
 
-function tickStart(){ if(!state.settings.sounds.ticking) return; try{ const a=document.getElementById('tickAudio'); a.currentTime=0; a.play(); }catch{} }
-function tickStop(){ try{ document.getElementById('tickAudio').pause(); }catch{} }
+function tickStart(){ if(!state.settings.sounds.ticking) return; try{ const a=$('#tickAudio'); a.currentTime=0; a.play(); }catch{} }
+function tickStop(){ try{ $('#tickAudio').pause(); }catch{} }
 
 function openLeaderboard(){
-  const box=document.getElementById('lbList'); box.innerHTML='';
+  const box=$('#lbList'); box.innerHTML='';
   const arr=Object.entries(state.players).map(([id,p])=>({id,name:p.name||id,score:p.score||0,avatar:p.avatar||''}));
   arr.sort((a,b)=> b.score-a.score || a.name.localeCompare(b.name));
   if(!arr.length){
@@ -179,21 +195,19 @@ function openLeaderboard(){
       box.appendChild(el('div',{class:'row'}, left, el('div',{}, String(p.score))));
     });
   }
-  document.getElementById('lbModal').style.display='flex';
+  $('#lbModal').style.display='flex';
 }
-function closeLeaderboard(){ document.getElementById('lbModal').style.display='none'; }
+function closeLeaderboard(){ $('#lbModal').style.display='none'; }
 
 function connectWS(){
-  const url=(document.getElementById('wsUrl').value||'').trim()||'ws://localhost:8081';
+  const url=($('#wsUrl').value||'').trim()||'ws://localhost:8081';
   let attempts=0;
   function dial(){
     try{ if(state.ws) state.ws.close(); }catch{}
-    const ws=new WebSocket(url); state.ws=ws; document.getElementById('wsState').textContent='jungiamasi...';
-    ws.onopen=()=>{ attempts=0; state.wsOk=true; document.getElementById('wsState').textContent='prijungta'; };
-    ws.onclose=ws.onerror=()=>{ state.wsOk=false; document.getElementById('wsState').textContent='neprijungta';
-      setTimeout(dial, Math.min(10000, 1000*(2**(attempts++))));
-    };
-    ws.onmessage=ev=>{ try{ const m=JSON.parse(ev.data); if(m.type==='chat') handleChat(m); }catch{} };
+    const ws=new WebSocket(url); state.ws=ws; $('#wsState').textContent='jungiamasi...';
+    ws.onopen=()=>{ attempts=0; state.wsOk=true; $('#wsState').textContent='prijungta'; emit('wsOpen'); };
+    ws.onclose=ws.onerror=()=>{ state.wsOk=false; $('#wsState').textContent='neprijungta'; emit('wsClosed'); setTimeout(dial, Math.min(10000, 1000*(2**(attempts++)))); };
+    ws.onmessage=ev=>{ try{ const m=JSON.parse(ev.data); emit('wsMessage', m); if(m.type==='chat') handleChat(m); }catch{} };
   }
   dial();
 }
@@ -211,13 +225,6 @@ function ensurePlayer(msg){
   return {id, p};
 }
 
-function handleChat(msg){
-  if(!state.session.timerRunning || !state.session.open) return;
-  const key=parseAnswer(String(msg.text||'')); if(!key) return;
-  const {id} = ensurePlayer(msg);
-  if(state.session.answers[id]) return;
-  state.session.answers[id]=key; state.session.counts[key]=(state.session.counts[key]||0)+1;
-}
 function parseAnswer(t){
   t=t.trim().toUpperCase();
   const m=t.match(/\b([ABCD])\b|(^|[^0-9])([1-4])($|[^0-9])/);
@@ -225,14 +232,27 @@ function parseAnswer(t){
   return null;
 }
 
+function handleChat(msg){
+  // plugin guard first
+  if(typeof chatGuard === 'function'){
+    const consumed = !!chatGuard(msg, {parseAnswer, ensurePlayer, state});
+    if(consumed) return;
+  }
+  if(!state.session.timerRunning || !state.session.open) return;
+  const key=parseAnswer(String(msg.text||'')); if(!key) return;
+  const {id} = ensurePlayer(msg);
+  if(state.session.answers[id]) return;
+  state.session.answers[id]=key; state.session.counts[key]=(state.session.counts[key]||0)+1;
+}
+
 window.addEventListener('keydown',e=>{
   if(e.key===' '){
     e.preventDefault();
-    if(document.getElementById('overlay').style.display==='flex') proceed(); else reveal(false);
+    if($('#overlay').style.display==='flex') proceed(); else reveal(false);
   }
 });
 
-// Live mode helpers
+// --- Live/TikTok helpers ---
 function applyLiveSettings(){
   const v = Math.max(0, parseInt(state.settings.chatSafe)||0);
   document.documentElement.style.setProperty('--safe-bottom', v+'px');
@@ -247,3 +267,35 @@ function setChatSafe(n){
   state.settings.chatSafe = clamp(parseInt(n)||0, 0, 400); save(); applyLiveSettings();
 }
 window.addEventListener('resize', applyLiveSettings);
+
+// --- Control surface for plugins ---
+function pauseMain(){
+  state.session.open=false;
+  if(timer){ try{ clearInterval(timer);}catch{}; timer=null; }
+  state.session.timerRunning=false; tickStop();
+}
+function resumeFlow(){ nextQ(); }
+function nextQuestionNow(){ $('#overlay').style.display='none'; proceed(); }
+function setChatGuard(fn){ chatGuard = fn; }
+function clearChatGuard(){ chatGuard = null; }
+function getRandomQuestion(){
+  const n = state.bank.length;
+  if(!n) return null;
+  const i = Math.floor(Math.random()*n);
+  const q = state.bank[i];
+  const opts=[q.correct, ...(q.wrong||[])].slice(0,4); while(opts.length<4) opts.push('');
+  const ord=[0,1,2,3]; shuffle(ord); const keys=['A','B','C','D'];
+  return {
+    q: q.q, note: q.note||'',
+    options: ord.map(oi=>opts[oi]),
+    keys, correctKey: keys[ord.indexOf(0)]||'A',
+    correctText: q.correct||''
+  };
+}
+
+// expose API
+window.KQuiz = {
+  state, on, off, emit, use,
+  util:{el,$,$$,shuffle,clamp,parseAnswer},
+  control:{pauseMain,resumeFlow,nextQuestionNow,setChatGuard,clearChatGuard,getRandomQuestion}
+};
