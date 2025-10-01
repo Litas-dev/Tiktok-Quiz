@@ -249,18 +249,21 @@ function connectWS() {
 }
 
 // Players / answers
-function ensurePlayer(msg) {
-  const id = String(msg.userId || msg.uniqueId || msg.displayName || msg.nickname || "user");
-  const name = String(msg.displayName || msg.nickname || msg.uniqueId || msg.userId || "Žaidėjas");
-  const ava = String(msg.avatar || msg.profilePictureUrl || msg.userProfilePictureUrl || "");
-  let p = state.players[id];
-  if (!p) { p = state.players[id] = { name, score: 0, nextMilestone: 100, avatar: ava }; }
-  else {
-    if (name && p.name !== name) p.name = name;
-    if (ava && p.avatar !== ava) p.avatar = ava;
+function ensurePlayer(msg){
+  // canonical ID = uniqueId if present, else userId, all lowercased
+  const canon = String(msg.uniqueId || msg.uid || msg.userId || "user").toLowerCase();
+  const name  = String(msg.displayName || msg.nickname || msg.uniqueId || msg.userId || "Žaidėjas");
+  const ava   = String(msg.avatar || msg.profilePictureUrl || msg.userProfilePictureUrl || "");
+
+  let p = state.players[canon];
+  if(!p){ p = state.players[canon] = { name, score:0, nextMilestone:100, avatar: ava }; }
+  else{
+    if(name && p.name !== name) p.name = name;
+    if(ava && p.avatar !== ava) p.avatar = ava;
   }
-  return { id, p };
+  return { id: canon, p };
 }
+
 function parseAnswer(t) {
   t = t.trim().toUpperCase();
   const m = t.match(/\b([ABCD])\b|(^|[^0-9])([1-4])($|[^0-9])/);
