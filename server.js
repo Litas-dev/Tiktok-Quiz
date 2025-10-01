@@ -43,17 +43,15 @@ function scheduleReconnect(reason){
   setTimeout(connectTikTok, delay);
 }
 
-tiktok.on("chat", d => {
-  broadcast({
-    type: "chat",
-    userId: String(d.userId || d.user?.userId || ""),
-    uniqueId: d.uniqueId || d.user?.uniqueId || "",
-    displayName: d.nickname || d.user?.nickname || d.uniqueId || "",
-    nickname: d.nickname || "",
-    avatar: d.profilePictureUrl || d.user?.profilePictureUrl || "",
-    text: d.comment || d.msg || ""
-  });
+broadcast({
+  type: 'chat',
+  uniqueId: String(data.uniqueId || data.user?.uniqueId || ''),
+  userId:   String(data.userId   || data.user?.userId   || ''),
+  displayName: data.nickname || data.user?.nickname || data.uniqueId || '',
+  avatar:   data.profilePictureUrl || data.user?.profilePictureUrl || '',
+  text:     data.comment || data.msg || ''
 });
+
 
 tiktok.on("disconnected", () => { console.log("[TT] disconnected"); scheduleReconnect("disconnected"); });
 tiktok.on("streamEnd",   () => { console.log("[TT] stream ended"); scheduleReconnect("streamEnd"); });
