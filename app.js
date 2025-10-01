@@ -217,23 +217,6 @@ function finish() {
 function tickStart() { if (!state.settings.sounds.ticking) return; try { const a = $("#tickAudio"); a.currentTime = 0; a.play(); } catch {} }
 function tickStop() { try { $("#tickAudio").pause(); } catch {} }
 
-// Leaderboard
-function openLeaderboard() {
-  const box = $("#lbList"); box.innerHTML = "";
-  const arr = Object.entries(state.players).map(([id, p]) => ({ id, name: p.name || id, score: p.score || 0, avatar: p.avatar || "" }));
-  arr.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-  if (!arr.length) {
-    box.appendChild(el("div", { class: "row" }, el("div", {}, "Nėra žaidėjų"), el("div", {}, "0")));
-  } else {
-    arr.forEach((p, i) => {
-      const left = el("div", { class: "rowL" }, p.avatar ? el("img", { class: "av", src: p.avatar, alt: "" }) : el("span", {}, ""), el("div", {}, (i + 1) + ". " + p.name));
-      box.appendChild(el("div", { class: "row" }, left, el("div", {}, String(p.score))));
-    });
-  }
-  $("#lbModal").style.display = "flex";
-}
-function closeLeaderboard() { $("#lbModal").style.display = "none"; }
-
 // WS bridge
 function connectWS() {
   const url = ($("#wsUrl").value || "").trim() || "ws://localhost:8081";
