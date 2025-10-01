@@ -1,10 +1,10 @@
-/* KQuiz addon: Milestone Solo Challenge v1.1
-   Flow: intro (name+avatar) -> host clicks "Toliau" -> question shown -> only that player can answer.
-   Timer: 30s. Scoring: +10 correct, −50% incorrect. Queue supports multiple triggers. */
+/* KQuiz addon: Milestone Solo Challenge v1.2
+   Flow: intro (name+avatar) -> host clicks "Toliau" -> 30s question.
+   Only that player’s chat counts. Shows result with correct answer.
+   Sounds: timer tick (if enabled in core), fail sound on wrong/timeout. */
 
 (function () {
   function factory() {
-    // runtime state
     let queue = [];
     let running = false;
     let targetId = null;
@@ -14,7 +14,9 @@
     let scoresHandler = null;
     let guardActive = false;
 
-    // UI mount
+    // keep current question info for result display
+    let curQ = null;
+
     function mountUI() {
       if (mounted) return;
 
@@ -35,6 +37,9 @@
 .kq-ctrls{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
 .kq-btn{padding:10px 14px;border-radius:14px;border:1px solid #1E2A3F;background:#0E162B;color:#F3F6FC;font-weight:900;cursor:pointer}
 .kq-hide{display:none}
+.kq-result{margin-top:10px;text-align:center;font-weight:900;font-size:clamp(16px,3vw,22px)}
+.kq-result.ok{color:#2EE5A9}
+.kq-result.bad{color:#FF5A6E}
       `;
       styleEl = document.createElement("style"); styleEl.textContent = css; document.head.appendChild(styleEl);
 
@@ -66,6 +71,7 @@
               <div>Riba: +10 / -50%</div>
             </div>
             <div class="kq-ans" id="kqSoloAns"></div>
+            <div id="kqSoloResult" class="kq-result kq-hide"></div>
             <div class="kq-ctrls">
               <button class="kq-btn" id="kqSoloCancel2">Atšaukti</button>
             </div>
@@ -92,28 +98,23 @@
 
       mountUI();
 
-      // load player visuals
       const p = K.state.players[id];
-      const nameEl = document.getElementById("kqSoloName");
-      const avaEl  = document.getElementById("kqSoloAva");
-      nameEl.textContent = p?.name || id;
-      avaEl.src = p?.avatar || "";
+      document.getElementById("kqSoloName").textContent = p?.name || id;
+      document.getElementById("kqSoloAva").src = p?.avatar || "";
 
-      // show intro, hide question
       document.getElementById("kqSoloIntro").classList.remove("kq-hide");
       document.getElementById("kqSoloPlay").classList.add("kq-hide");
       overlay.style.display = "flex";
 
-      // wire buttons
       document.getElementById("kqSoloGo").onclick = () => startQuestion(K);
-      document.getElementById("kqSoloCancel1").onclick = () => resolve(K, false); // cancel = incorrect
+      document.getElementById("kqSoloCancel1").onclick = () => resolve(K, false); // treat cancel as incorrect
     }
 
     function startQuestion(K) {
       if (stage !== "intro") return;
       stage = "question";
 
-      // render a random question
+      // random question
       const q = K.control.getRandomQuestion() || {
         q: "Klausimas",
         options: ["Atsakymas A", "Atsakymas B", "Atsakymas C", "Atsakymas D"],
@@ -121,9 +122,11 @@
         correctKey: "A",
         correctText: "Atsakymas A"
       };
+      curQ = q;
 
       document.getElementById("kqSoloIntro").classList.add("kq-hide");
       document.getElementById("kqSoloPlay").classList.remove("kq-hide");
+      document.getElementById("kqSoloResult").classList.add("kq-hide");
 
       const qEl = document.getElementById("kqSoloQ");
       const box = document.getElementById("kqSoloAns");
@@ -138,19 +141,27 @@
         box.appendChild(K.util.el("div", { class: "kq-choice" }, K.util.el("div", { class: "kq-key" }, key), opt));
       });
 
-      // guard: accept only this player's answer, only during stage 'question'
+      // accept only this user's answer while in question stage
       if (!guardActive) {
         K.control.setChatGuard((msg, { parseAnswer, ensurePlayer }) => {
-          if (stage !== "question") return true; // consume all until question stage
+          if (stage !== "question") return true;
           const { id: uid } = ensurePlayer(msg);
-          if (uid !== targetId) return true;     // consume others
+          if (uid !== targetId) return true;
           const key = parseAnswer(String(msg.text || ""));
           if (!key) return true;
           resolve(K, key === q.correctKey);
-          return true; // consume this too
+          return true;
         });
         guardActive = true;
       }
+
+      // start tick sound if enabled in core
+      try {
+        if (K.state.settings.sounds.ticking) {
+          const a = document.getElementById("tickAudio");
+          if (a) { a.currentTime = 0; a.play(); }
+        }
+      } catch {}
 
       // 30s timer
       left = 30; total = left;
@@ -160,35 +171,61 @@
       t = setInterval(() => {
         left--;
         leftEl.textContent = String(Math.max(0, left));
-        const pct = total ? 100 * (total - left) / total : 0;
-        fill.style.width = pct + "%";
-        if (left <= 0) {
-          clearInterval(t); t = null;
-          resolve(K, false); // time out = incorrect
-        }
+        fill.style.width = (total ? (100 * (total - left) / total) : 0) + "%";
+        if (left <= 0) { clearInterval(t); t = null; resolve(K, false); } // timeout = incorrect
       }, 1000);
 
       cancelBtn.onclick = () => resolve(K, false);
     }
 
+    function stopTick() {
+      try { const a = document.getElementById("tickAudio"); if (a) a.pause(); } catch {}
+    }
+
+    function playFail() {
+      try {
+        if (window.KQuiz?.state?.settings?.sounds?.fail) {
+          const f = document.getElementById("failAudio");
+          if (f) { f.currentTime = 0; f.play(); }
+        }
+      } catch {}
+    }
+
     function resolve(K, ok) {
-      // score and cleanup
       if (t) { clearInterval(t); t = null; }
+      stopTick();
+
+      // score
       const p = K.state.players[targetId];
-      if (p) {
-        if (ok) p.score = (p.score || 0) + 10;
-        else    p.score = Math.floor((p.score || 0) * 0.5);
+      if (p) p.score = ok ? (p.score || 0) + 10 : Math.floor((p.score || 0) * 0.5);
+
+      // result banner with correct answer
+      const res = document.getElementById("kqSoloResult");
+      if (res && curQ) {
+        res.classList.remove("kq-hide");
+        res.classList.toggle("ok", !!ok);
+        res.classList.toggle("bad", !ok);
+        res.textContent = ok
+          ? `Teisinga! +10 (${curQ.correctText})`
+          : `Neteisinga. −50% | Teisingas: ${curQ.correctText}`;
       }
+
+      if (!ok) playFail();
+
       if (guardActive) { try { K.control.clearChatGuard(); } catch {} guardActive = false; }
-      overlay.style.display = "none";
-      stage = "idle";
-      finish(K);
+
+      // brief pause to show result, then close
+      setTimeout(() => {
+        overlay.style.display = "none";
+        stage = "idle";
+        curQ = null;
+        finish(K);
+      }, 1200);
     }
 
     function finish(K) {
       running = false;
       targetId = null;
-      // continue queued turns or resume main game
       if (queue.length > 0) runIntro(K, queue.shift());
       else K.control.resumeFlow();
     }
@@ -203,7 +240,6 @@
         scoresHandler = ({ id, before, after }) => {
           if (Math.floor(after / 100) > Math.floor(before / 100)) {
             if (!queue.includes(id)) queue.push(id);
-            // start immediately if idle
             if (!running) kick(K);
           }
         };
@@ -214,9 +250,10 @@
         scoresHandler = null;
         queue.length = 0;
         if (t) { clearInterval(t); t = null; }
+        stopTick();
         try { window.KQuiz?.control?.clearChatGuard(); } catch {}
         if (overlay) overlay.style.display = "none";
-        running = false; targetId = null; stage = "idle";
+        running = false; targetId = null; stage = "idle"; curQ = null;
         unmountUI();
       }
     };
@@ -228,3 +265,4 @@
   }
   register();
 })();
+
