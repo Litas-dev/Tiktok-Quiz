@@ -104,5 +104,13 @@ Point the quiz to the relay in Settings. Click **Prisijungti**.
 - Space: Reveal or continue.
 
 ## License
-MIT.
+
+This project is licensed under a **proprietary license**.  
+Copyright (c) 2025 **Kostas Jankus**. All rights reserved.
+
+- Free to use for **personal, educational, and non-commercial** purposes.  
+- **Commercial use, resale, or redistribution is strictly prohibited** without prior written permission from the author.  
+
+See [LICENSE.md](./LICENSE.md) for full details.
+
 
