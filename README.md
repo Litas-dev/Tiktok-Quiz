@@ -1,116 +1,106 @@
-# Kostelio Klausimynas
+# TikTok Quiz
 
-Mobile‑first quiz for TikTok LIVE. Runs as a static web app. Optional Node relay ingests chat and maps `A/B/C/D` or `1–4` to answers.
+Minimal, production‑minded setup for running a TikTok Live multiple‑choice quiz with WebSocket relay and add‑ons.
 
-## Value Proposition
-- Audience engagement with timer‑gated rounds and scoring.
-- Zero backend for core play. Optional WebSocket bridge for chat answers.
-- Add‑on architecture for feature velocity. No core edits required.
+## Support Matrix
+- **Node:** 18+ (ESM)
+- **TikTok Live Connector:** **^2.0.3** (stable)  
+  Pin this version. Do **not** use 5.x.
 
-## Feature Set
-- Responsive UI optimized for phones.
-- Question bank loader (JSON). Timer, reveal, scoring, leaderboard.
-- Audio cues (tick while active, fail if no winners).
-- Live‑safe layout: bottom safe area to avoid TikTok chat overlap. Toggle in Settings.
-- **Add‑on:** Milestone Solo Challenge (optional module).
-
-## Architecture
-```
-index.html
-style.css
-app.js                 # Core engine with plugin API
-addons/
-  milestone-solo.js    # Add-on: personal challenge at 100/200/300… pts
-server.js              # Example relay (optional)
-package.json
-config.example.json
-```
-Core exposes a lightweight API on `window.KQuiz`:
-
-```js
-// Events
-KQuiz.on('init' | 'questionStart' | 'questionEnd' | 'scoresChanged', handler)
-
-// State and helpers
-KQuiz.state            // game state (players, settings, session)
-KQuiz.util.el, KQuiz.util.$, KQuiz.util.$$, KQuiz.util.parseAnswer
-
-// Control surface
-KQuiz.control.pauseMain()
-KQuiz.control.resumeFlow()
-KQuiz.control.nextQuestionNow()
-KQuiz.control.setChatGuard(fn)   // intercept chat; return truthy to consume
-KQuiz.control.clearChatGuard()
-KQuiz.control.getRandomQuestion() // {q, options[4], keys[4], correctKey, correctText}
+## Install
+```bash
+npm i
 ```
 
-### Add‑on: Milestone Solo Challenge
-- Trigger: whenever a player’s score crosses 100‑point boundaries (100, 200, 300, …).
-- Flow: core pauses → full‑screen modal with player avatar/name → 12s timed single question.
-- Input gate: only that player’s chat input is accepted during the solo.
-- Scoring: +10 if correct; otherwise reduce current score by 50%.
-- Queue: multiple players run one‑by‑one. Resumes round after queue drains.
-- Implementation lives entirely in `addons/milestone-solo.js` and is loaded via a `<script>` tag.
-
-## Getting Started
-1. Open `index.html` in a modern browser.
-2. Settings → **Live režimas** ON if streaming on TikTok. Set **Apatinis chat aukštis** to match the chat overlay.
-3. Load your question bank JSON.
-4. Press **Start**.
-
-### Question Bank Format
+## Configure
+Create `config.json`:
 ```json
-[
-  {
-    "q": "Kada Cezaris peržengė Rubikoną?",
-    "correct": "49",
-    "wrong": ["84", "61", "39"],
-    "note": "49 m. pr. Kr.",
-    "cat": "istorija"
-  }
-]
+{ "username": "YOUR_TIKTOK_LIVE_USERNAME" }
+```
+Or set env:
+```bash
+TT_USERNAME=YOUR_TIKTOK_LIVE_USERNAME
 ```
 
-## TikTok Chat Relay (Optional)
-Minimal Node relay using `tiktok-live-connector` + WebSocket broadcast.
+## Run
+Two processes:
 
-**server.js**
-```js
-// broadcasts {type:'chat', userId, displayName, avatar, text} to ws://localhost:8081
+**1) TikTok relay (WS + optional avatar proxy)**
+```bash
+node server.js
+# WS:   ws://localhost:8081
+# HTTP: http://localhost:8081   (health: /health, avatar proxy: /img?u=...)
 ```
 
-**package.json**
+**2) Static UI**
+```bash
+npx http-server -p 5500
+# open http://localhost:5500
+# set WebSocket URL in the UI to: ws://localhost:8081
+```
+
+> If you don’t want two processes, fold static serving into `server.js`. Default repo keeps them separate for clarity.
+
+## Avatars
+- Events carry `profilePictureUrl`. The client caches per‑user images and renders them on reveal and in add‑ons.  
+- By default the client uses **direct TikTok URLs**. If your CDN blocks hotlinks, enable the built‑in proxy by wrapping image URLs as:
+  ```
+  http://localhost:8081/img?u=ENCODED_TIKTOK_URL
+  ```
+  (Add‑ons use `KQuiz.util.proxyURL()` if present.)
+
+## Add‑ons
+- Enabled via `<script>` tags in `index.html`.
+- `avatar-flyover.js` v1.1 pulls photos from `profilePictureUrl` and the cached players map, with optional proxy support.
+- `leaderboard.js`, `milestone-solo.js`, `chat-recorder.js` are read‑only and do not mutate avatar state.
+
+## Cache Busting
+Browsers cache aggressively. Bump query strings after changes:
+```html
+<script src="app.js?v=20251002" defer></script>
+<script src="addons/avatar-flyover.js?v=2" defer></script>
+```
+
+## Troubleshooting
+1. **No avatars**  
+   - Open DevTools → Network → WS → select your socket → Frames. Check a recent `chat`/`member`.  
+   - You must see a full URL in `profilePictureUrl` (or `profilePicture`).  
+   - If empty: TikTok did not send a photo for that user/event.
+
+2. **Images broken in overlay but proxy test works**  
+   - Your UI hits `http://localhost:5500/img?...` by mistake. Use absolute proxy base `http://localhost:8081/img?u=...` or the provided helper.
+
+3. **Old JS served**  
+   - Increase `?v=` and hard refresh (Ctrl+F5). Disable CSP `<meta http-equiv="Content-Security-Policy">`.
+
+4. **Connector errors about gifts**  
+   - We do **not** subscribe to gifts. Ensure package is `tiktok-live-connector@^2.0.3` and reinstall:
+     ```bash
+     del package-lock.json
+     rmdir /s /q node_modules
+     npm i
+     ```
+
+5. **Verify cached players**  
+   - In the console:
+     ```js
+     Object.values(KQuiz.state.players).map(p => p.avatar || p.pfp).filter(Boolean)
+     ```
+
+## Scripts
+Optional NPM scripts:
 ```json
 {
-  "name": "tiktok-quiz-relay",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "tiktok-live-connector": "^5",
-    "ws": "^8"
-  },
-  "scripts": { "start": "node server.js" }
+  "scripts": {
+    "relay": "node server.js",
+    "ui": "http-server -p 5500"
+  }
 }
 ```
 
-**config.example.json**
-```json
-{ "username": "YOUR_TIKTOK_USERNAME" }
-```
+## Notes
+- Serve over HTTP. Do not open `index.html` via `file://`.
+- Ports can be changed via `PORT` and `HEALTH_PORT` env vars.
+- This repo is ESM‑only; no `require()`.
 
-Point the quiz to the relay in Settings. Click **Prisijungti**.
-
-## Keyboard Shortcuts
-- Space: Reveal or continue.
-
-## License
-
-This project is licensed under a **proprietary license**.  
-Copyright (c) 2025 **Kostas Jankus**. All rights reserved.
-
-- Free to use for **personal, educational, and non-commercial** purposes.  
-- **Commercial use, resale, or redistribution is strictly prohibited** without prior written permission from the author.  
-
-See [LICENSE.md](./LICENSE.md) for full details.
-
-
+License: MIT
