@@ -153,4 +153,4 @@ Load a JSON array in **Settings → Upload**. Shape:
 - ESM only; no `require()`.
 
 ## License
-MIT
+See [`LICENSE`](./LICENSE) for terms.
