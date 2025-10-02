@@ -1,6 +1,6 @@
-/* KQuiz addon: Avatar Flyover v1.0
+/* KQuiz addon: Avatar Flyover v1.1
    Shows a small avatar flying across the screen when a valid answer (A/B/C/D or 1–4)
-   is posted DURING the question timer. Ignores everything else. */
+   is posted DURING the question timer. */
 
 (function () {
   function factory() {
@@ -9,6 +9,8 @@
     const lastByUser = Object.create(null);
     const MAX_CONCURRENT = 12;
     const COOLDOWN_MS = 2000; // per-user anti-spam
+    // capture KQuiz context for helpers
+    let Kctx = null;
 
     function mountUI() {
       if (mounted) return;
@@ -39,6 +41,17 @@
 
     function rand(min, max){ return Math.random()*(max-min)+min; }
 
+    function proxify(url){
+      if (!url) return "";
+      try {
+        // use addon-aware proxy helper if available
+        if (Kctx && Kctx.util && typeof Kctx.util.proxyURL === "function") {
+          return Kctx.util.proxyURL(url);
+        }
+      } catch {}
+      return url;
+    }
+
     function spawn(avatarUrl, displayName){
       // keep the layer tidy
       while (layer.children.length >= MAX_CONCURRENT) layer.children[0].remove();
@@ -48,8 +61,11 @@
 
       if (avatarUrl) {
         const img = document.createElement("img");
-        img.src = avatarUrl;
+        img.src = proxify(avatarUrl);
         img.alt = "";
+        img.referrerPolicy = "no-referrer";
+        img.loading = "lazy";
+        img.onerror = () => el.remove();
         el.appendChild(img);
       } else {
         const init = (String(displayName||"").trim()[0]||"?").toUpperCase();
@@ -74,7 +90,31 @@
       layer.appendChild(el);
     }
 
+    function pickAvatar(m, uid){
+      // widest set of sources
+      const direct =
+        m.avatar ||
+        m.profilePicture ||
+        m.profilePictureUrl ||
+        m.userProfilePictureUrl ||
+        m.user?.profilePictureUrl ||
+        m.user?.profilePicture ||
+        m.user?.profilePicture?.urlList?.[0] ||
+        m.user?.profilePicture?.urls?.[0] ||
+        m.user?.profilePicture?.url_list?.[0] ||
+        "";
+
+      if (direct) return direct;
+
+      // fallback to stored players map
+      try {
+        const p = (Kctx && Kctx.state && Kctx.state.players) ? Kctx.state.players[uid] : null;
+        return (p && (p.avatar || p.pfp)) || "";
+      } catch { return ""; }
+    }
+
     function enable(K){
+      Kctx = K;
       mountUI();
 
       // listen to raw WS messages
@@ -90,13 +130,13 @@
         if (!key) return;
 
         // identity + cooldown
-        const uid = String(m.uniqueId || m.uid || m.userId || "user").toLowerCase();
+        const uid = String(m.uniqueId || m.uid || m.userId || m.user?.uniqueId || m.user?.userId || "user").toLowerCase();
         const now = Date.now();
         if ((lastByUser[uid]||0) + COOLDOWN_MS > now) return;
         lastByUser[uid] = now;
 
-        // pick avatar/name
-        const avatar = String(m.avatar || "");
+        // avatar + name
+        const avatar = pickAvatar(m, uid);
         const name = String(m.displayName || m.nickname || m.uniqueId || uid);
         spawn(avatar, name);
       });

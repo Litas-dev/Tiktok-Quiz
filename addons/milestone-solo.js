@@ -1,7 +1,9 @@
-/* KQuiz addon: Milestone Solo Challenge v1.2
+/* KQuiz addon: Milestone Solo Challenge v1.3 (manual resume)
    Flow: intro (name+avatar) -> host clicks "Toliau" -> 30s question.
    Only that player’s chat counts. Shows result with correct answer.
-   Sounds: timer tick (if enabled in core), fail sound on wrong/timeout. */
+   Sounds: timer tick (if enabled in core), fail sound on wrong/timeout.
+   Change v1.3: no auto-resume; host must click "Tęsti žaidimą". Highlights correct choice.
+*/
 
 (function () {
   function factory() {
@@ -31,6 +33,8 @@
 .kq-ans{width:100%;max-width:900px;display:grid;gap:12px;grid-template-columns:1fr}
 @media (min-width:720px){.kq-ans{grid-template-columns:1fr 1fr}}
 .kq-choice{display:flex;align-items:center;gap:12px;padding:16px 14px;border-radius:18px;border:1px solid #1E2A3F;background:rgba(17,27,47,.75);font-weight:800;font-size:clamp(18px,3.6vw,28px)}
+.kq-choice.is-correct{outline:3px solid #2EE5A9}
+.kq-choice.is-dim{filter:grayscale(.35) opacity(.85)}
 .kq-key{min-width:56px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:14px;background:#0E1730;border:1px solid #26365A;color:#BBD7FF;font-weight:900}
 .kq-bar{height:14px;border-radius:999px;background:#11213A;border:1px solid #1E2A3F;overflow:hidden;margin-top:6px}
 .kq-fill{height:100%;width:0%;background:linear-gradient(90deg,#7C5CFF,#2EE5A9)}
@@ -74,6 +78,7 @@
             <div id="kqSoloResult" class="kq-result kq-hide"></div>
             <div class="kq-ctrls">
               <button class="kq-btn" id="kqSoloCancel2">Atšaukti</button>
+              <button class="kq-btn kq-hide" id="kqSoloResume">Tęsti žaidimą</button>
             </div>
           </div>
         </div>`;
@@ -133,12 +138,16 @@
       const fill = document.getElementById("kqSoloFill");
       const leftEl = document.getElementById("kqSoloLeft");
       const cancelBtn = document.getElementById("kqSoloCancel2");
+      const resumeBtn = document.getElementById("kqSoloResume");
+
+      if (resumeBtn) resumeBtn.classList.add("kq-hide");
 
       qEl.textContent = q.q;
       box.innerHTML = "";
       q.options.forEach((opt, i) => {
         const key = q.keys[i];
-        box.appendChild(K.util.el("div", { class: "kq-choice" }, K.util.el("div", { class: "kq-key" }, key), opt));
+        const node = K.util.el("div", { class: "kq-choice", "data-key": key }, K.util.el("div", { class: "kq-key" }, key), opt);
+        box.appendChild(node);
       });
 
       // accept only this user's answer while in question stage
@@ -191,6 +200,18 @@
       } catch {}
     }
 
+    function highlightCorrect() {
+      if (!curQ) return;
+      try {
+        const nodes = Array.from(document.querySelectorAll("#kqSoloAns .kq-choice"));
+        nodes.forEach(n => {
+          const k = (n.getAttribute("data-key") || "").trim();
+          if (k === curQ.correctKey) n.classList.add("is-correct");
+          else n.classList.add("is-dim");
+        });
+      } catch {}
+    }
+
     function resolve(K, ok) {
       if (t) { clearInterval(t); t = null; }
       stopTick();
@@ -210,24 +231,27 @@
           : `Neteisinga. −50% | Teisingas: ${curQ.correctText}`;
       }
 
+      // visually mark the correct choice
+      highlightCorrect();
+
       if (!ok) playFail();
 
+      // release chat guard, but keep overlay visible
       if (guardActive) { try { K.control.clearChatGuard(); } catch {} guardActive = false; }
 
-      // brief pause to show result, then close
-      setTimeout(() => {
-        overlay.style.display = "none";
-        stage = "idle";
-        curQ = null;
-        finish(K);
-      }, 1200);
-    }
-
-    function finish(K) {
-      running = false;
-      targetId = null;
-      if (queue.length > 0) runIntro(K, queue.shift());
-      else K.control.resumeFlow();
+      // show manual resume button; do NOT auto-resume
+      const resumeBtn = document.getElementById("kqSoloResume");
+      if (resumeBtn) {
+        resumeBtn.classList.remove("kq-hide");
+        resumeBtn.onclick = () => {
+          try { overlay.style.display = "none"; } catch {}
+          // reset solo state
+          stage = "idle"; running = false; targetId = null; curQ = null;
+          // resume main flow on host command
+          try { K.control.resumeFlow(); } catch {}
+          // optional: do NOT auto-kick next queued solos here
+        };
+      }
     }
 
     return {
@@ -265,4 +289,3 @@
   }
   register();
 })();
-

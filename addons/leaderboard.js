@@ -42,7 +42,7 @@
         const nameSize = Math.round(16*factor);
 
         const img = p.avatar
-          ? el('img',{class:'av',src:p.avatar,alt:'',style:`width:${avSize}px;height:${avSize}px`})
+          ? el('img',{class:'av',src:(window.KQuiz&&window.KQuiz.util&&window.KQuiz.util.proxyURL)?window.KQuiz.util.proxyURL(p.avatar):p.avatar,alt:'',style:`width:${avSize}px;height:${avSize}px`})
           : el('span',{},'');
 
         const nameEl = el('div',{style:`font-weight:900;font-size:${nameSize}px;transform-origin:left center`}, `${i+1}. ${p.name}`);
