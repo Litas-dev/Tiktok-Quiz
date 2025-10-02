@@ -1,6 +1,30 @@
 /* KQuiz core v3.0 */
 "use strict";
 
+const players = window.players || (window.players = Object.create(null));
+
+function upsertPlayer(msg){
+  const id =
+    msg.userId || msg.user?.userId || msg.user?.uniqueId || msg.user?.secUid;
+  if (!id) return null;
+
+  const name =
+    msg.displayName ||
+    msg.user?.displayName ||
+    msg.user?.nickname ||
+    msg.user?.uniqueId ||
+    "Guest";
+
+  const p = players[id] || (players[id] = { id: String(id), name, pfp: null, answers: 0, last: 0 });
+  if (p.name !== name) p.name = name;
+
+  const url = msg.profilePicture || msg.avatar || msg.user?.profilePicture;
+  if (url) p.pfp = url;            // never overwrite with falsy
+  p.last = Date.now();
+  return p;
+}
+
+
 // Helpers
 const $ = (q, r = document) => r.querySelector(q);
 const $$ = (q, r = document) => Array.from(r.querySelectorAll(q));
@@ -188,7 +212,21 @@ function reveal(auto) {
   if (winners.length) {
     winners.sort((a, b) => b.score - a.score);
     winners.forEach((w) => {
-      const left = el("div", { class: "rowL" }, w.avatar ? el("img", { class: "av", src: w.avatar, alt: "" }) : el("span", {}, ""), el("div", {}, w.name));
+      const left = el(
+        "div",
+        { class: "rowL" },
+        w.avatar
+          ? el("img", {
+              class: "av",
+              src: w.avatar,
+              alt: "",
+              referrerpolicy: "no-referrer",
+              loading: "lazy",
+              onerror: "this.remove()"
+            })
+          : el("span", {}, ""),
+        el("div", {}, w.name)
+      );
       box.appendChild(el("div", { class: "row" }, left, el("div", {}, String(w.score))));
     });
   } else {
@@ -234,16 +272,44 @@ function connectWS() {
 // Players / answers
 function ensurePlayer(msg){
   // canonical ID = uniqueId if present, else userId, all lowercased
-  const canon = String(msg.uniqueId || msg.uid || msg.userId || "user").toLowerCase();
-  const name  = String(msg.displayName || msg.nickname || msg.uniqueId || msg.userId || "Žaidėjas");
-  const ava   = String(msg.avatar || msg.profilePictureUrl || msg.userProfilePictureUrl || "");
+  const canon = String(
+    msg.uniqueId || msg.uid || msg.userId ||
+    msg.user?.uniqueId || msg.user?.userId ||
+    "user"
+  ).toLowerCase();
+
+  const name =
+    msg.displayName ||
+    msg.nickname ||
+    msg.uniqueId ||
+    msg.user?.displayName ||
+    msg.user?.nickname ||
+    msg.user?.uniqueId ||
+    msg.userId ||
+    "Žaidėjas";
+
+  // Map all possible profile-picture fields (new + legacy)
+  const incomingAvatar =
+    msg.profilePicture ||                   // canonical from updated server
+    msg.avatar ||                           // legacy key
+    msg.profilePictureUrl ||                // some libs
+    msg.userProfilePictureUrl ||            // some libs
+    msg.user?.profilePicture ||             // nested canonical
+    msg.user?.profilePictureUrl ||          // nested variant
+    msg.user?.avatarLarger?.urlList?.[0] || // legacy nested
+    msg.user?.avatarMedium?.urlList?.[0] ||
+    msg.user?.avatarThumb?.urlList?.[0] ||
+    "";
 
   let p = state.players[canon];
-  if(!p){ p = state.players[canon] = { name, score:0, nextMilestone:100, avatar: ava }; }
-  else{
-    if(name && p.name !== name) p.name = name;
-    if(ava && p.avatar !== ava) p.avatar = ava;
+  if (!p) {
+    p = state.players[canon] = { name, score: 0, nextMilestone: 100, avatar: "" };
+  } else {
+    if (name && p.name !== name) p.name = name;
   }
+  // Only set if truthy to avoid blanking an existing good URL
+  if (incomingAvatar) p.avatar = incomingAvatar;
+
   return { id: canon, p };
 }
 

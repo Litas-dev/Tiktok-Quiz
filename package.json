@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
-    "tiktok-live-connector": "^5.0.0",
+    "tiktok-live-connector": "2.0.3",
     "ws": "^8.18.0"
   },
   "scripts": {

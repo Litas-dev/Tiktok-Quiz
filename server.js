@@ -1,237 +1,194 @@
-// server.js
-// Node 18+ recommended. ESM module.
-// Start: `npm start`
-// Config: set USERNAME in config.json or env.
+// server.js — HTTP+WS server with avatar proxy, modern client, no gifts
+// Node 18+
+// Start: node server.js   (reads ./config.json)   or   set TT_USERNAME and run
+// config.json example: {"username":"zmoguskunasvardas"}
 
-import fs from "node:fs";
 import http from "node:http";
+import fs from "node:fs";
+import { Readable } from "node:stream";
 import { WebSocketServer } from "ws";
-import { WebcastPushConnection, WebcastEvent } from "tiktok-live-connector";
+import { TikTokLiveConnection, WebcastEvent } from "tiktok-live-connector";
 
 // ---------- Config ----------
-const cfg = (() => {
-  try {
-    return JSON.parse(fs.readFileSync("./config.json", "utf8"));
-  } catch {
-    return {};
-  }
-})();
-const USERNAME = process.env.TT_USERNAME || cfg.username || cfg.USERNAME || "";
+let CFG_USERNAME = "";
+try {
+  const raw = fs.readFileSync("./config.json", "utf8");
+  CFG_USERNAME = JSON.parse(raw)?.username || "";
+} catch {}
+const USERNAME = process.env.TT_USERNAME || CFG_USERNAME;
 if (!USERNAME) {
-  console.error("Missing username. Set TT_USERNAME env or config.json {\"username\":\"...\"}");
+  console.error('Missing username. Set TT_USERNAME or put {"username":"..."} in config.json');
   process.exit(1);
 }
 
-const PORT = Number(process.env.PORT || 8077);
-const HEALTH_PORT = Number(process.env.HEALTH_PORT || 8078);
-const WS_PATH = "/"; // change if needed
+const PORT = Number(process.env.PORT || 8081);
+const WS_PATH = "/";
 
-// ---------- HTTP health ----------
-const healthServer = http.createServer((_, res) => {
-  res.writeHead(200, { "content-type": "text/plain" });
-  res.end("ok");
+// ---------- HTTP server (health + avatar proxy) ----------
+const server = http.createServer(async (req, res) => {
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+
+    if (url.pathname === "/health") {
+      res.writeHead(200, { "content-type": "text/plain" });
+      res.end("ok");
+      return;
+    }
+
+    if (url.pathname === "/img") {
+      const u = url.searchParams.get("u");
+      if (!u || !/^https?:\/\//i.test(u)) {
+        res.writeHead(400, { "content-type": "text/plain" });
+        res.end("bad url");
+        return;
+      }
+      const upstream = await fetch(u, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
+          "Referer": "https://www.tiktok.com/",
+          "Origin": "https://www.tiktok.com"
+        }
+      });
+      if (!upstream.ok) {
+        res.writeHead(502, { "content-type": "text/plain" });
+        res.end("upstream error");
+        return;
+      }
+      const ct = upstream.headers.get("content-type") || "image/jpeg";
+      res.writeHead(200, {
+        "content-type": ct,
+        "cache-control": "public, max-age=300",
+        "access-control-allow-origin": "*"
+      });
+      if (upstream.body) {
+        Readable.fromWeb(upstream.body).pipe(res);
+      } else {
+        const buf = Buffer.from(await upstream.arrayBuffer());
+        res.end(buf);
+      }
+      return;
+    }
+
+    res.writeHead(404, { "content-type": "text/plain" });
+    res.end("not found");
+  } catch (e) {
+    res.writeHead(500, { "content-type": "text/plain" });
+    res.end("server error");
+  }
 });
-healthServer.listen(HEALTH_PORT, () => {
-  console.log(`[health] http://localhost:${HEALTH_PORT}`);
+
+server.listen(PORT, () => {
+  console.log(`[http] http://localhost:${PORT}  |  proxy: GET /img?u=ENCODED_URL`);
 });
 
 // ---------- WebSocket hub ----------
-const wss = new WebSocketServer({ port: PORT, path: WS_PATH });
+const wss = new WebSocketServer({ server, path: WS_PATH });
 const clients = new Set();
-
 wss.on("connection", (ws) => {
   clients.add(ws);
   ws.on("close", () => clients.delete(ws));
-  ws.on("error", () => {/* no-op */});
+  ws.on("error", () => {});
 });
-
 function broadcast(obj) {
   const data = typeof obj === "string" ? obj : JSON.stringify(obj);
-  for (const ws of clients) {
-    if (ws.readyState === 1) ws.send(data);
-  }
+  for (const ws of clients) if (ws.readyState === 1) ws.send(data);
 }
-
-// Keep connections alive
-setInterval(() => {
-  for (const ws of clients) {
-    if (ws.readyState === 1) ws.ping();
-  }
-}, 25000);
-
+setInterval(() => { for (const ws of clients) if (ws.readyState === 1) ws.ping(); }, 25000);
 console.log(`[ws] listening ws://localhost:${PORT}${WS_PATH}`);
 
-// ---------- TikTok connection with auto-retry ----------
+// ---------- TikTok connection (modern, gift-free) ----------
 let conn = null;
 let stopping = false;
 
-const baseBackoffMs = 2000;
-const maxBackoffMs = 30000;
-
 async function startConnection() {
   let attempt = 0;
-
   while (!stopping) {
     try {
-      conn = new WebcastPushConnection(USERNAME, {
-        // Keep defaults sane. Tweak if needed.
-        processInitialData: true,
+      conn = new TikTokLiveConnection(USERNAME, {
+        processInitialData: false,
+        fetchRoomInfoOnConnect: true,
         enableExtendedGiftInfo: false
       });
-
       wireHandlers(conn);
-
-      console.log(`[tiktok] connecting as @${USERNAME} ...`);
+      console.log(`[tiktok] connecting @${USERNAME}`);
       await conn.connect();
       console.log("[tiktok] connected");
-      attempt = 0; // reset backoff after success
-
-      // Wait here until disconnected
+      attempt = 0;
       await new Promise((resolve) => conn.once("disconnected", resolve));
-      console.warn("[tiktok] disconnected");
       if (stopping) break;
-
+      console.warn("[tiktok] disconnected");
     } catch (err) {
       console.error("[tiktok] connect error:", err?.message || err);
     }
-
-    // Backoff then retry
     attempt++;
-    const sleep = Math.min(baseBackoffMs * Math.pow(2, attempt - 1), maxBackoffMs);
+    const sleep = Math.min(2000 * 2 ** (attempt - 1), 30000);
     console.log(`[tiktok] retry in ${sleep} ms`);
     await new Promise((r) => setTimeout(r, sleep));
   }
 }
 
-function stopConnection() {
-  stopping = true;
-  try { conn?.disconnect(); } catch { /* no-op */ }
-}
+const first = (x) => (Array.isArray(x) && x.length ? x[0] : null);
+const picFrom = (obj) => {
+  if (!obj) return null;
+  if (typeof obj === "string") return obj;
+  return (
+    obj.profilePictureUrl ||
+    first(obj.profilePicture?.urlList) ||
+    first(obj.profilePicture?.urls) ||
+    first(obj.profilePicture?.url_list) ||
+    obj.profilePicture?.uri ||
+    first(obj.avatarLarger?.urlList) ||
+    first(obj.avatarMedium?.urlList) ||
+    first(obj.avatarThumb?.urlList) ||
+    first(obj.avatarLarger?.urls) ||
+    first(obj.avatarMedium?.urls) ||
+    first(obj.avatarThumb?.urls) ||
+    obj.avatarLarger?.uri ||
+    obj.avatarMedium?.uri ||
+    obj.avatarThumb?.uri ||
+    null
+  );
+};
+const normUser = (evt = {}) => {
+  const u = evt.user || {};
+  const userId = (u.userId ?? evt.userId ?? u.secUid ?? evt.secUid ?? u.uniqueId ?? evt.uniqueId ?? "user") + "";
+  const displayName = u.nickname || evt.nickname || u.uniqueId || evt.uniqueId || userId || "Guest";
+  const profilePicture = u.profilePictureUrl || picFrom(u) || picFrom(evt) || null;
+  return { userId, displayName, profilePicture };
+};
+const isAnswer = (t = "") => /^[a-d1-4]$/i.test(String(t).trim());
 
-// ---------- Event wiring ----------
 function wireHandlers(connection) {
-  // Unified user picture extractor
-  const getProfilePicture = (u) =>
-    u?.profilePictureUrl ||
-    u?.profilePicture ||
-    u?.avatarLarger?.urlList?.[0] ||
-    u?.avatarMedium?.urlList?.[0] ||
-    u?.avatarThumb?.urlList?.[0] ||
-    null;
+  connection.on("connected", (state) => { broadcast({ type: "status", status: "connected", room: state?.roomId || null, ts: Date.now() }); });
+  connection.on("disconnected", () => { broadcast({ type: "status", status: "disconnected", ts: Date.now() }); });
+  connection.on(WebcastEvent.STREAM_END, () => { broadcast({ type: "status", status: "ended", ts: Date.now() }); try { connection.disconnect(); } catch {} });
+  connection.on("error", (err) => { broadcast({ type: "status", status: "error", message: String(err?.message || err), ts: Date.now() }); });
 
-  // Normalize user fields
-  const normUser = (u = {}) => ({
-    userId: u.userId || u.secUid || u.uniqueId || null,
-    uniqueId: u.uniqueId || null,
-    displayName: u.nickname || u.uniqueId || "Unknown",
-    profilePicture: getProfilePicture(u)
-  });
-
-  // Utility: answer detection (A/B/C/D or 1–4, exact match)
-  const isAnswer = (txt = "") => /^[a-d1-4]$/i.test(txt.trim());
-
-  // Connected
-  connection.on("connected", (state) => {
-    broadcast({ type: "status", status: "connected", room: state?.roomId || null, ts: Date.now() });
-  });
-
-  // Disconnected
-  connection.on("disconnected", () => {
-    broadcast({ type: "status", status: "disconnected", ts: Date.now() });
-    // upstream startConnection loop will handle retry
-  });
-
-  // Errors
-  connection.on("streamEnd", () => {
-    broadcast({ type: "status", status: "ended", ts: Date.now() });
-    try { connection.disconnect(); } catch {}
-  });
-  connection.on("error", (err) => {
-    broadcast({ type: "status", status: "error", message: String(err?.message || err), ts: Date.now() });
-  });
-
-  // Core: CHAT
-  connection.on(WebcastEvent.CHAT, (data) => {
-    const u = normUser(data?.user);
-    const text = data?.comment || "";
-    const payload = {
-      type: "chat",
-      text,
+  const emitFrame = (kind, d) => {
+    const u = normUser(d);
+    const base = {
+      type: kind,
       user: u,
-      // backward compat keys many UIs expect:
       userId: u.userId,
       displayName: u.displayName,
-      avatar: u.profilePicture,             // legacy
-      profilePicture: u.profilePicture,     // canonical
+      profilePicture: u.profilePicture,
+      avatar: u.profilePicture,
       ts: Date.now()
     };
-    broadcast(payload);
-
-    if (isAnswer(text)) {
-      broadcast({
-        type: "answer",
-        value: text.trim().toUpperCase(),   // "A".."D" or "1".."4"
-        user: u,
-        userId: u.userId,
-        displayName: u.displayName,
-        profilePicture: u.profilePicture,
-        ts: Date.now()
-      });
+    if (kind === "chat") base.text = (d?.comment || "").trim();
+    broadcast(base);
+    if (kind === "chat" && isAnswer(base.text)) {
+      broadcast({ type: "answer", value: base.text.toUpperCase(), ...base });
     }
-  });
+  };
 
-  // Optional: LIKE events
-  connection.on(WebcastEvent.LIKE, (data) => {
-    const u = normUser(data?.user);
-    broadcast({
-      type: "like",
-      count: data?.likeCount || 1,
-      total: data?.totalLikeCount || null,
-      user: u,
-      userId: u.userId,
-      displayName: u.displayName,
-      profilePicture: u.profilePicture,
-      ts: Date.now()
-    });
-  });
-
-  // Optional: GIFT events
-  connection.on(WebcastEvent.GIFT, (data) => {
-    const u = normUser(data?.user);
-    broadcast({
-      type: "gift",
-      id: data?.giftId || null,
-      name: data?.giftName || data?.gift?.name || null,
-      repeatCount: data?.repeatCount || 1,
-      diamondCount: data?.diamondCount || data?.gift?.diamond_count || 0,
-      user: u,
-      userId: u.userId,
-      displayName: u.displayName,
-      profilePicture: u.profilePicture,
-      ts: Date.now()
-    });
-  });
-
-  // Optional: JOIN events
-  connection.on(WebcastEvent.MEMBER, (data) => {
-    const u = normUser(data?.user);
-    broadcast({
-      type: "join",
-      user: u,
-      userId: u.userId,
-      displayName: u.displayName,
-      profilePicture: u.profilePicture,
-      ts: Date.now()
-    });
-  });
+  connection.on(WebcastEvent.CHAT,   (d) => emitFrame("chat", d));
+  connection.on(WebcastEvent.MEMBER, (d) => emitFrame("member", d));
+  connection.on(WebcastEvent.LIKE,   (d) => emitFrame("like", d));
+  // No gifts
 }
 
-// Graceful shutdown
-process.on("SIGINT", () => { console.log("SIGINT"); stopConnection(); process.exit(0); });
-process.on("SIGTERM", () => { console.log("SIGTERM"); stopConnection(); process.exit(0); });
+process.on("SIGINT",  () => { console.log("SIGINT");  stopping = true; try { conn?.disconnect(); } catch {}; process.exit(0); });
+process.on("SIGTERM", () => { console.log("SIGTERM"); stopping = true; try { conn?.disconnect(); } catch {}; process.exit(0); });
 
-// Boot
-startConnection().catch((e) => {
-  console.error("fatal start error", e);
-  process.exit(1);
-});
+startConnection().catch((e) => { console.error("fatal start error", e); process.exit(1); });

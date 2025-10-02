@@ -19,6 +19,9 @@ a{color:#9cc2ff;text-decoration:none} a:hover{text-decoration:underline}
 .hidden{display:none!important}
 .muted{color:var(--muted)}
 
+
+.pfp{width:28px;height:28px;border-radius:50%;object-fit:cover;display:inline-block}
+
 /* Top bar */
 .topbar{
   position:sticky; top:0; z-index:50;
